@@ -23,5 +23,8 @@ class TempValue(models.Model):
     value = models.FloatField(max_length=6, default=0)
     time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.value
+
     class Meta:
         ordering = ('time',)

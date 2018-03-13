@@ -1,5 +1,6 @@
 # _*_ encoding:utf-8 _*_
 from rest_framework import serializers
+from .models import TempValue
 # class Sensor(models.Model):
 #     sensorKks = models.CharField(max_length=10, default="", null=False)
 #     x = models.FloatField(max_length=6, default=-1.0)
@@ -18,4 +19,15 @@ class SensorSerializer(serializers.Serializer):
     row = serializers.IntegerField()
     column = serializers.IntegerField()
 
-1
+
+class TempValueSerializer(serializers.Serializer):
+    sensorKks = serializers.ReadOnlyField()
+    value = serializers.FloatField()
+    time = serializers.DateTimeField()
+
+    def create(self, validated_data):
+        """
+        :param validated_data: 
+        :return: 
+        """
+        return TempValue.objects.create(**validated_data)

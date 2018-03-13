@@ -39,7 +39,7 @@ from django.contrib.auth.models import User
 #
 #
 # class UserSerializer(serializers.ModelSerializer):
-#     snippets = serializers.PrimaryKeyRelatedField(
+#     snippets = s.erializersPrimaryKeyRelatedField(
 #         many=True, queryset=Snippet.objects.all())
 #
 #     class Meta:
