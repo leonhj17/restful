@@ -1,6 +1,6 @@
 # _*_ encoding:utf-8 _*_
 from rest_framework import serializers
-from .models import TempValue
+from .models import TempValue, Sensor
 # class Sensor(models.Model):
 #     sensorKks = models.CharField(max_length=10, default="", null=False)
 #     x = models.FloatField(max_length=6, default=-1.0)
@@ -21,7 +21,7 @@ class SensorSerializer(serializers.Serializer):
 
 
 class TempValueSerializer(serializers.Serializer):
-    sensorKks = serializers.ReadOnlyField()
+    sensorKks = serializers.StringRelatedField(read_only=True)
     value = serializers.FloatField()
     time = serializers.DateTimeField()
 

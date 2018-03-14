@@ -37,10 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'snippets.apps.SnippetsConfig',
+    'snippets',
     'rest_framework',
-    'snippets.apps.SnippetsConfig',
     'tempsensor',
-    'modeltest'
+    'modeltest',
+    'xadmin',
+    'crispy_forms',
+    'reversion'
 ]
 
 MIDDLEWARE = [
@@ -131,3 +135,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+   'django.contrib.auth.context_processors.auth',
+   'django.core.context_processors.auth',
+   'django.core.context_processors.debug',
+   'django.core.context_processors.media',
+   'django.core.context_processors.static',
+   'django.core.context_processors.tz',
+   'django.contrib.messages.context_processors.messages',
+   'learn_models.context_processors.test',
+)
+

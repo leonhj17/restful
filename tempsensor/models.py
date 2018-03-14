@@ -1,9 +1,11 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
 # Create your models here.
+@python_2_unicode_compatible
 class Sensor(models.Model):
     sensorKks = models.CharField(max_length=10, default="", null=False)
     x = models.FloatField(max_length=6, default=-1.0)
@@ -19,8 +21,8 @@ class Sensor(models.Model):
 
 
 class TempValue(models.Model):
-    sensroKks = models.ForeignKey(Sensor, on_delete=models.CASCADE)
-    value = models.FloatField(max_length=6, default=0)
+    sensorKks = models.ForeignKey(Sensor, on_delete=models.CASCADE)
+    value = models.CharField(max_length=6, default=0)
     time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
