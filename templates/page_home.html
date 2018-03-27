@@ -1,0 +1,156 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/mystyle.css' %}" type="text/css">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+
+
+    <nav class="navbar navbar-dark bg-dark fixed-top">
+        <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>-->
+          <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="#">现场值</a>
+                <a class="dropdown-item" href="#">等温场</a>
+                <a class="dropdown-item" href="#">轨迹线</a>
+              </div>
+          </div>
+        <form class="form-inline" style="float: right">
+            <button id="login" type="button" class="btn btn-sm btn-outline-light"><a href="{% url 'account:login' %}">
+                {% if  request.user.is_authenticated %}
+                        退出
+                    {% else %}
+                        登录
+                {% endif %}
+            </a></button>
+        <button id="hide" type="button" class="btn btn-sm btn-outline-light">设置菜单</button>
+        <button id="xadmin" type="button" class="btn btn-sm btn-outline-light"><a href="/xadmin/">后台管理</a></button>
+        </form>
+
+
+      </nav>
+
+    <!--<div class="collapse" id="navbarToggleExternalContent">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Active</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+              </li>
+            </ul>
+      </div>-->
+    <div id="test">
+        <div id="content-left">
+           <!--table:图例描述-->
+            <table class="table">
+             <thead >
+            <tr>
+              <th scope="row" style="width: 40%; border-top: none;border-bottom:none">图例描述</th>
+            </tr>
+          </thead>
+             <tbody>
+            <tr id="table-first-row" >
+              <td>探针</td>
+              <td><svg style="background-color: beige; width: 15%;height: 15%"></svg></td>
+            </tr>
+            <tr id="table-last-row">
+              <td >烟温点</td>
+              <td><svg style="background-color: red; width: 15%;height: 15%"></svg></td>
+            </tr>
+          </tbody>
+           </table>
+            <!--table:栅格-->
+            <table class="table">
+             <thead >
+            <tr>
+              <th scope="row" style="width: 40%; border-top: none;border-bottom:none">栅格</th>
+            </tr>
+          </thead>
+             <tbody>
+            <tr id="table-first-row" >
+              <td>Grid X</td>
+              <td><input type="checkbox"></td>
+            </tr>
+            <tr id="table-last-row">
+              <td >Grid Y</td>
+              <td><input type="checkbox"></td>
+            </tr>
+          </tbody>
+           </table>
+            <!--table:显示-->
+            <table class="table">
+             <thead >
+            <tr>
+              <th scope="row" style="width: 40%; border-top: none;border-bottom:none">显示</th>
+            </tr>
+          </thead>
+             <tbody>
+            <tr id="table-first-row" >
+              <td>数值</td>
+              <td><input type="radio"></td>
+            </tr>
+            <tr id="table-last-row">
+              <td >色标</td>
+              <td><input type="radio"></td>
+            </tr>
+          </tbody>
+           </table>
+        </div>
+    </div>
+    <div class="container container-fluid">
+        <div class="row" style="margin-top: 4%; padding-top: 4%">
+            <!-- class= col-mid-3 -->
+
+            <div class="col-md-12">
+                <svg id="svgPoint" style="background-color: whitesmoke; width: 100%; height: 800px" class="img-thumbnail"></svg>
+            </div>
+            <!-- class= col-mid-9 -->
+
+            <!-- content-right-->
+
+        </div>
+        <!-- class=row -->
+    </div>
+    <!-- container-->
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/myjs.js' %}"></script>
+    <script src="{% static 'js/d3.js' %}"></script>
+
+  <script>
+      var svgPoint = d3.select("#svgPoint");
+
+      drawCircle(svgPoint);
+
+      $('#hide').click(function () {
+          $('#test').toggle();
+      })
+  </script>
+  </body>
+</html>
