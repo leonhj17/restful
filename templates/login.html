@@ -1,0 +1,56 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+</head>
+<body>
+    <div id="login_form" style="text-align: center">
+        <h1>Login</h1>
+        <p>Input your username and password</p>
+        <form class="form-horizontal" action="." method="post" validate_username_url = {% url 'account:validate_username' %}>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Login">
+        </form>
+
+    </div>
+    <!-- div login form -->
+    <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
+
+<!--    <script>
+        $('#id_username').change(function () {
+            var username = $(this).val();
+
+            $.ajax({
+                url: "{% url 'account:validate_username' %}",
+                data: {'username': username},
+                dataType: 'json',
+                success: function (data) {
+                    if (!data.is_taken) {
+                        alert('user do not exist');
+                    }
+                }
+            });
+        });
+    </script> -->
+
+<script>
+    $('#id_username').change(function () {
+        var form = $(this).closest('form');
+        $.ajax({
+            url: form.attr('validate_username_url'),
+            data: form.serialize(),
+            dataType: 'json',
+            success: function (data) {
+                if (!data.is_taken) {
+                    alert(data.error_message);
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
