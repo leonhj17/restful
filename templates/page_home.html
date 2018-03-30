@@ -29,36 +29,20 @@
               </div>
           </div>
         <form class="form-inline" style="float: right">
-            <button id="login" type="button" class="btn btn-sm btn-outline-light"><a href="{% url 'account:login' %}">
-                {% if  request.user.is_authenticated %}
-                        退出
+            <button id="login" type="button" class="btn btn-sm btn-outline-light">
+                {% if  user.is_authenticated %}
+                        <a href="{% url 'account:logout' %}">退出</a>
                     {% else %}
-                        登录
+                        <a href="{% url 'account:new_login' %}">登录</a>
                 {% endif %}
-            </a></button>
+            </button>
         <button id="hide" type="button" class="btn btn-sm btn-outline-light">设置菜单</button>
-        <button id="xadmin" type="button" class="btn btn-sm btn-outline-light"><a href="/xadmin/">后台管理</a></button>
-        </form>
+        <button id="xadmin" type="button" class="btn btn-sm btn-outline-light" {% if user.is_authenticated %}style="display: block"{% else %}style="display: none" {% endif %}>
+            <a href="/xadmin/">后台管理</a></button>       </form>
 
 
       </nav>
 
-    <!--<div class="collapse" id="navbarToggleExternalContent">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link active" href="#">Active</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-              </li>
-            </ul>
-      </div>-->
     <div id="test">
         <div id="content-left">
            <!--table:图例描述-->
@@ -89,11 +73,11 @@
              <tbody>
             <tr id="table-first-row" >
               <td>Grid X</td>
-              <td><input type="checkbox"></td>
+              <td><input type="checkbox" name="xgrid"></td>
             </tr>
             <tr id="table-last-row">
               <td >Grid Y</td>
-              <td><input type="checkbox"></td>
+              <td><input type="checkbox" name="ygrid"></td>
             </tr>
           </tbody>
            </table>
@@ -107,11 +91,11 @@
              <tbody>
             <tr id="table-first-row" >
               <td>数值</td>
-              <td><input type="radio"></td>
+              <td><input type="radio" name="show"></td>
             </tr>
             <tr id="table-last-row">
               <td >色标</td>
-              <td><input type="radio"></td>
+              <td><input type="radio" name="show"></td>
             </tr>
           </tbody>
            </table>
@@ -146,11 +130,22 @@
   <script>
       var svgPoint = d3.select("#svgPoint");
 
-      drawCircle(svgPoint);
+{#      drawCircle(svgPoint);#}
 
       $('#hide').click(function () {
           $('#test').toggle();
-      })
+      });
+
+      $("input:checkbox[name=xgrid]").click(function () {
+          var xgrid = $(this).is(':checked');
+          if (xgrid) {
+              console.log('show x grid');
+          }else {
+              console.log('hide x grid');
+          }
+      });
+
+
   </script>
   </body>
 </html>
