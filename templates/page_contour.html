@@ -1,0 +1,54 @@
+{% extends 'page_home.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>Contour Plot</title>
+{% endblock title %}
+
+{% block main_svg %}
+<div class="container container-fluid">
+    <div class="row" style="margin-top: 4%; padding-top: 4%">
+        <!-- class= col-mid-3 -->
+
+        <div class="col-md-12" style="text-align: center">
+            <svg id="contour" width="800" height="800" style="border: solid 1px grey; text-align: center" class="img-thumbnail"></svg>
+        </div>
+        <!-- class= col-mid-9 -->
+
+        <!-- content-right-->
+
+    </div>
+    <!-- class=row -->
+</div>
+<!-- container-->
+{% endblock %}
+
+{% block custom_js %}
+    <script src="{% static 'js/hsv.js' %}"></script>
+    <script src="{% static 'js/contour.js' %}"></script>
+
+    <script>
+    var svg = d3.select("#contour"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+    var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
+        i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 0, 0.95)),
+        interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); },
+        color = d3.scaleSequential(interpolateTerrain).domain([700, 1400]);
+
+    d3.json("{% url 'tempsensor:get_json_tempvalue'%}", function(error, volcano) {
+        console.log(volcano);
+          if (error) throw error;
+
+          svg.selectAll("path")
+            .data(d3.contours()
+                .size([volcano.width, volcano.height])
+                .thresholds(d3.range(700, 1400, 20))
+              (volcano.values))
+            .enter().append("path")
+              .attr("d", d3.geoPath(d3.geoIdentity().scale(width / volcano.width)))
+              .attr("fill", function(d) { return color(d.value); });
+        });
+    </script>
+{% endblock custom_js %}
