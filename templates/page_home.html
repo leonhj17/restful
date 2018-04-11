@@ -19,18 +19,18 @@
 
 
     <nav class="navbar navbar-dark bg-dark fixed-top">
-        <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button">
           <span class="navbar-toggler-icon"></span>
-        </button>-->
-          <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              </button>
+        </button>
+          <!--<div class="dropdown">
+              <button class="navbar-toggler" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="narbar-toggle-icon"></span></button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="{% url 'tempsensor:home' %}">现场值</a>
-                <a class="dropdown-item" href="{% url 'tempsensor:contour' %}">等温场</a>
+{#                <a class="dropdown-item" href="{% url 'tempsensor:home' %}">现场值</a>#}
+{#                <a class="dropdown-item" href="{% url 'tempsensor:contour' %}">等温场</a>#}
                 <a class="dropdown-item" href="#">轨迹线</a>
               </div>
-          </div>
+          </div>-->
         <form class="form-inline" style="float: right">
             <button id="login" type="button" class="btn btn-sm btn-outline-light">
                 {% if  user.is_authenticated %}
@@ -45,6 +45,22 @@
 
 
       </nav>
+
+    <div id="sidebar-left">
+        <ul class="nav flex-column" style="padding-top: 50px">
+          <li class="nav-item">
+            <a class="nav-link active" href="{% url 'tempsensor:home' %}">现场值</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'tempsensor:contour' %}">等温场</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">轨迹线</a>
+          </li>
+        </ul>
+    </div>
+    <div id="mask">
+    </div>
     {% block tool_menu %}
     <div id="test">
         <div id="content-left">
@@ -111,8 +127,9 @@
         <div class="row" style="margin-top: 4%; padding-top: 4%">
             <!-- class= col-mid-3 -->
 
-            <div class="col-md-12">
-                <svg id="svgPoint" width="100%" height="800px" style="background-color: whitesmoke;" class="img-thumbnail"></svg>
+            <div class="col-md-12" style="text-align: center">
+                <svg id="svgPoint" width=800 height=800 style="border: 1px solid silver;"></svg>
+                <svg id="legend" width=800 height=100 style="border: 1px solid silver;"></svg>
             </div>
             <!-- class= col-mid-9 -->
 
@@ -132,28 +149,63 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/myjs.js' %}"></script>
     <script src="{% static 'js/d3.js' %}"></script>
+    <script src="{% static 'js/hsv.js' %}"></script>
 
     {% block custom_js %}
   <script>
       var svgPoint = d3.select("#svgPoint");
 
-      var width = svgPoint.attr("width");
-      console.log(width);
-{#      drawCircle(svgPoint);#}
+      var xtick = [0, 3600, 7200, 10440, 14280, 17880,21480];
+      var ytick = [0, 3280, 6280, 10740, 12200, 15200, 18200, 21480];
 
-      $('#hide').click(function () {
-          $('#test').toggle();
+      var xscale = d3.scaleLinear()
+          .domain([0, 21480])
+          .range([30, 770]);
+
+      var yscale = d3.scaleLinear()
+          .domain([0, 21480])
+          .range([30, 770]);
+
+      var xgird = svgPoint.selectAll('.xgrid')
+          .data(xtick)
+          .enter()
+          .append("g")
+          .attr('class', 'xgrid');
+
+      xgird.append('line')
+          .attr('x1', function (d) {
+              return xscale(d)
+          })
+          .attr('x2', function (d) {
+              return xscale(d)
+          })
+          .attr('y1', 0)
+          .attr('y2', 800);
+
+      var ygird = svgPoint.selectAll('.ygrid')
+          .data(ytick)
+          .enter()
+          .append("g")
+          .attr('class', 'ygrid');
+
+      ygird.append('line')
+          .attr('y1', function (d) {
+              return yscale(d)
+          })
+          .attr('y2', function (d) {
+              return yscale(d)
+          })
+          .attr('x1', 0)
+          .attr('x2', 800);
+
+      var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
+        i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),
+        interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); },
+        color = d3.scaleSequential(interpolateTerrain).domain([700, 1400]);
+
+      $.getJSON('{% url 'tempsensor:tempvalue' %}', function (json) {
+          point(svgPoint, json)
       });
-
-      $("input:checkbox[name=xgrid]").click(function () {
-          var xgrid = $(this).is(':checked');
-          if (xgrid) {
-              console.log('show x grid');
-          }else {
-              console.log('hide x grid');
-          }
-      });
-
 
   </script>
   {% endblock %}
