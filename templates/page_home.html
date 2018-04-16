@@ -78,7 +78,7 @@
             </tr>
             <tr id="table-last-row">
               <td >烟温点</td>
-              <td><svg style="background-color: red; width: 15%;height: 15%"></svg></td>
+              <td><svg style="background-color: red; width: 15%;height: 15%; border-radius: 50%"></svg></td>
             </tr>
           </tbody>
            </table>
@@ -92,11 +92,11 @@
              <tbody>
             <tr id="table-first-row" >
               <td>Grid X</td>
-              <td><input type="checkbox" name="xgrid"></td>
+              <td><input type="checkbox" name="xgrid" checked="checked"></td>
             </tr>
             <tr id="table-last-row">
               <td >Grid Y</td>
-              <td><input type="checkbox" name="ygrid"></td>
+              <td><input type="checkbox" name="ygrid" checked="checked"></td>
             </tr>
           </tbody>
            </table>
@@ -114,7 +114,7 @@
             </tr>
             <tr id="table-last-row">
               <td >色标</td>
-              <td><input type="radio" name="show"></td>
+              <td><input type="radio" name="show" checked="checked"></td>
             </tr>
           </tbody>
            </table>
@@ -128,8 +128,8 @@
             <!-- class= col-mid-3 -->
 
             <div class="col-md-12" style="text-align: center">
-                <svg id="svgPoint" width=800 height=800 style="border: 1px solid silver;"></svg>
-                <svg id="legend" width=800 height=100 style="border: 1px solid silver;"></svg>
+                <svg id="svgPoint" width=800 height=800 style="border: 0px solid silver;"></svg>
+                <svg id="legend" width=100 height=800 style="border: 0px solid silver; margin-left: 10px"></svg>
             </div>
             <!-- class= col-mid-9 -->
 
@@ -155,48 +155,7 @@
   <script>
       var svgPoint = d3.select("#svgPoint");
 
-      var xtick = [0, 3600, 7200, 10440, 14280, 17880,21480];
-      var ytick = [0, 3280, 6280, 10740, 12200, 15200, 18200, 21480];
-
-      var xscale = d3.scaleLinear()
-          .domain([0, 21480])
-          .range([30, 770]);
-
-      var yscale = d3.scaleLinear()
-          .domain([0, 21480])
-          .range([30, 770]);
-
-      var xgird = svgPoint.selectAll('.xgrid')
-          .data(xtick)
-          .enter()
-          .append("g")
-          .attr('class', 'xgrid');
-
-      xgird.append('line')
-          .attr('x1', function (d) {
-              return xscale(d)
-          })
-          .attr('x2', function (d) {
-              return xscale(d)
-          })
-          .attr('y1', 0)
-          .attr('y2', 800);
-
-      var ygird = svgPoint.selectAll('.ygrid')
-          .data(ytick)
-          .enter()
-          .append("g")
-          .attr('class', 'ygrid');
-
-      ygird.append('line')
-          .attr('y1', function (d) {
-              return yscale(d)
-          })
-          .attr('y2', function (d) {
-              return yscale(d)
-          })
-          .attr('x1', 0)
-          .attr('x2', 800);
+      var legend = d3.select('#legend');
 
       var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
         i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),
@@ -204,6 +163,7 @@
         color = d3.scaleSequential(interpolateTerrain).domain([700, 1400]);
 
       $.getJSON('{% url 'tempsensor:tempvalue' %}', function (json) {
+          scatterLegendPlot(legend, 1400, 700, -100);
           point(svgPoint, json)
       });
 
