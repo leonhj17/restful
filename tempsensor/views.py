@@ -80,3 +80,20 @@ def get_json_tempvalue(request):
     res['values'] = grid_z.tolist()
     return JsonResponse(res, safe=False)
 
+
+# 测试 计算火焰中心
+def get_center():
+    # time
+    obj = TempValue.objects.all()
+    serializer = TempValueSerializer(obj, many=True)
+    data = serializer.data
+    x = np.array([])
+    y = np.array([])
+    value = np.array([])
+    for dic in data:
+        x = np.append(x, dic['sensorKks']['x'])
+        y = np.append(y, dic['sensorKks']['y'])
+        value = np.append(value, dic['value'])
+    x_avg = np.dot(x, value.T)/value.sum()
+    y_avg = np.dot(y, value.T)/value.sum()
+    return [x_avg, y_avg]
