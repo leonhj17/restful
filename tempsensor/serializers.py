@@ -14,7 +14,7 @@ class SensorSerializer(serializers.Serializer):
 
 class TempValueSerializer(serializers.Serializer):
     # id = serializers.PrimaryKeyRelatedField(read_only=True)
-    sensorKks = SensorSerializer()
+    sensorKks = SensorSerializer(required=False)
     value = serializers.FloatField()
     time = serializers.DateTimeField()
 

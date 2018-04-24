@@ -11,8 +11,8 @@
         <!-- class= col-mid-3 -->
 
         <div class="col-md-12" style="text-align: center">
-            <svg id="contour" width="800" height="800" style="border: solid 1px silver; text-align: center" class="img-thumbnail"></svg>
-            <svg id="legend" width=100 height=800 style="border: 1px solid silver;margin-left: 10px"></svg>
+            <svg id="contour" width="800" height="800" style="border: solid 0px silver; text-align: center" class="img-thumbnail"></svg>
+            <svg id="legend" width=100 height=800 style="border: 0px solid silver;margin-left: 10px"></svg>
         </div>
         <!-- class= col-mid-9 -->
 
@@ -38,44 +38,6 @@
     .append('div')
     .attr('class','tooltips')
     .attr('opacity',0);
-
-    function legendPlot(svg, uplimit, dnlimit, space) {
-        var width = svg.attr('width');
-        var height = svg.attr('height');
-
-        var ldata = d3.range(uplimit, dnlimit, space);
-        var lheight =height/ldata.length;
-        console.log(height, ldata);
-        var update = svg.selectAll('rect').data(ldata);
-
-        var enter = update.enter();
-
-        var exit = update.exit();
-
-        update.attr('x', 0)
-            .attr('y', function (d,i) {
-                return i*lheight;
-            })
-            .attr('width', width)
-            .attr('height', height)
-            .style('fill',function (d) {
-                return color(d)
-            });
-
-        enter.append('rect')
-            .attr('x', 0)
-            .attr('y', function (d,i) {
-                return i*lheight;
-            })
-            .attr('width', width)
-            .attr('height', height)
-            .style('fill',function (d) {
-                return color(d)
-            });
-
-        exit.remove();
-
-    }
 
     var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
         i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),

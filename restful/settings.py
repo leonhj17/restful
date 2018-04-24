@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'modeltest',
     'xadmin',
     'crispy_forms',
-    'reversion'
+    'reversion',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -89,7 +90,9 @@ DATABASES = {
     }
 }
 
-
+#redirect_url
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/home/'
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 
@@ -114,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 

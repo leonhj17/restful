@@ -1,0 +1,72 @@
+.table tr  td
+{
+    text-align: center;
+    border: none;
+}
+
+#table-first-row > td {
+    border-top: 1px solid #dddddd !important;
+}
+
+#table-last-row > td{
+    border-bottom: 1px solid #dddddd !important;
+}
+
+#content-left {
+    border: 0px solid #dddddd !important;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+#test {
+    padding-top: 100px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 300px;
+    height: 100%;
+    background-color: darkgray;
+    z-index: 1;
+    opacity: 0.75;
+    display: none;
+}
+
+#sidebar-left {
+    position: fixed;
+    top: 56px;
+    bottom: 0px;
+    background-color: whitesmoke;
+    opacity: 1;
+    width: 300px;
+    z-index: 3000;
+    display: none;
+}
+
+#mask {
+    position: fixed;
+    top:56px;
+    bottom: 0px;
+    width: 100%;
+    opacity: 0.4;
+    background-color: black;
+    z-index: 2999;
+    display: none;
+}
+
+line {
+    stroke: black;
+    stroke-width: 1px;
+    stroke-dasharray: 8px;
+    stroke-dashoffset: 1px;
+}
+
+.tooltips {
+    position: absolute;
+    width: 120px;
+    height: auto;
+    font-family: Sans-Serif;
+    font-size: 14px;
+    text-align: center;
+    /*border: 1px solid silver;*/
+    background-color: wheat;
+}

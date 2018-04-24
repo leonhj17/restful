@@ -25,7 +25,10 @@ xversion.register_models()
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
     url(r'^', include('snippets.urls')),
-    url(r'^', include('tempsensor.urls')),
+    url(r'^', include('tempsensor.urls', namespace='tempsensor')),
+    url(r'^account/', include('account.urls', namespace='account')),
     url(r'index/$', TemplateView.as_view(template_name='index.html')),
+    url(r'contour/$', TemplateView.as_view(template_name='contour.html')),
+    url(r'^siderbar/$', TemplateView.as_view(template_name='siderbar.html')),
     url(r'^xadmin/', include(xadmin.site.urls)),
 ]

@@ -1,7 +1,9 @@
+# coding:utf-8
 from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from datetime import datetime
 
 
 # Create your models here.
@@ -17,7 +19,7 @@ class Sensor(models.Model):
         return self.sensorKks
 
     class Meta:
-        ordering = ("sensorKks",)
+        ordering = ("y", 'x')
 
 
 class TempValue(models.Model):
@@ -27,6 +29,15 @@ class TempValue(models.Model):
 
     def __str__(self):
         return self.value
+
+    class Meta:
+        ordering = ('time',)
+
+
+class TempCenter(models.Model):
+    center_x = models.FloatField(max_length=6, default=0, verbose_name='X中心')
+    center_y = models.FloatField(max_length=6, default=0, verbose_name='Y中心')
+    time = models.DateTimeField(null=False, default=datetime.now())
 
     class Meta:
         ordering = ('time',)
