@@ -13,5 +13,10 @@ def mul(x, y):
 
 
 @shared_task
-def cron_task():
-    print 'cron task execute'
+def interval_task():
+    print 'interval task execute'
+
+
+@shared_task
+def crontab_task():
+    print 'crontab task execute'
