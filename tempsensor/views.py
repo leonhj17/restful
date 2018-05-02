@@ -7,6 +7,10 @@ from rest_framework import status
 from django.http import Http404, JsonResponse
 import numpy as np
 from scipy.interpolate import griddata
+from pandas import DataFrame as df
+import math
+from random import random, seed
+from datetime import datetime
 
 from interpolate import get_location, get_temp_bytime
 
@@ -82,6 +86,7 @@ def get_json_tempvalue(request):
 
 
 # 测试 计算火焰中心
+# 待写入异步任务
 def get_center():
     # time
     obj = TempValue.objects.all()
@@ -97,3 +102,21 @@ def get_center():
     x_avg = np.dot(x, value.T)/value.sum()
     y_avg = np.dot(y, value.T)/value.sum()
     return [x_avg, y_avg]
+
+
+# 测试 生成烟温数据
+# 待写入异步任务
+def simulate_gastemp():
+    obj = Sensor.objects.all()
+    serializer = SensorSerializer(obj, many=True)
+    data = serializer.data
+
+    def type_sin(param):
+        seed()
+        return 1 + np.sin(param / 21480 * np.pi) * 0.3 * ((1 - 2 * random()) / 10 + 1)
+
+    data_df = df(data, columns=['sensorKks', 'x', 'y', 'value', 'time'])
+    data_df['value'] = type_sin(data_df['x'])*type_sin(data_df['y'])*700
+    data_df['time'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+
+    data_df.to_csv('gastemp.csv', index=False, header=False, columns=['sensorKks', 'value', 'time'])

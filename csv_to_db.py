@@ -13,7 +13,7 @@ django.setup()
 from tempsensor.models import Sensor, TempValue
 
 sensor_path = os.path.join(os.getcwd(), 'sensor.csv')
-temp_value_path = os.path.join(os.getcwd(), 'tempvalue.csv')
+temp_value_path = os.path.join(os.getcwd(), 'gastemp.csv')
 
 
 # 将txt文件转化为列表形式，列表中每一项为字典
@@ -43,7 +43,7 @@ def read_value_csv(filepath):
             cell['sensorKks'] = Sensor.objects.get(sensorKks=line[0])
             cell['value'] = float('%.1f' % float(line[1]))
             cell['time'] = datetime.datetime.strptime(
-                line[2], '%Y-%m-%d %H:%M'
+                line[2], '%Y/%m/%d %H:%M:%S'
             )
             result.append(cell)
     return result
