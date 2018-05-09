@@ -8,9 +8,8 @@ from django.http import Http404, JsonResponse
 import numpy as np
 from scipy.interpolate import griddata
 from pandas import DataFrame as df
-import math
 from random import random, seed
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from interpolate import get_location, get_temp_bytime
 
@@ -44,7 +43,10 @@ class TempValueList(APIView):
     list all Temp Value
     """
     def get(self, request, format=None):
-        value = TempValue.objects.all()
+        # 查询并返回出最近时刻的烟温值
+        time = TempValue.objects.values('time').order_by('time').last()
+        value = TempValue.objects.filter(time__gt=time['time']-timedelta(seconds=1))
+        # value = TempValue.objects.all()
         value_serializer = TempValueSerializer(value, many=True)
         return Response(value_serializer.data)
 

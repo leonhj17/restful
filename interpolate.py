@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from django.http import JsonResponse
+from datetime import timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'restful.settings')
 
@@ -32,7 +33,10 @@ def get_temp_bytime():
     当前仅包含一组工况，暂时提取全部
     目标根据时间查询工况，或距离查询时间最近工况
     """
-    tempvalue = TempValue.objects.all()
+    # 查询并返回出最近时刻的烟温值
+    time = TempValue.objects.values('time').order_by('time').last()
+    tempvalue = TempValue.objects.filter(time__gt=time['time'] - timedelta(seconds=1))
+    # tempvalue = TempValue.objects.all()
     try:
         for t in tempvalue:
             temp.append(float(t.value))

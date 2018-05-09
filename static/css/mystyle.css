@@ -62,7 +62,7 @@ line {
 
 .tooltips {
     position: absolute;
-    width: 120px;
+    width: auto;
     height: auto;
     font-family: Sans-Serif;
     font-size: 14px;
