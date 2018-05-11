@@ -106,7 +106,7 @@ def get_center(time='last'):
         loc.append([dic['sensorKks']['x'], dic['sensorKks']['y']])
         temp = np.append(temp, dic['value'])
     loc = np.array(loc)
-    print loc
+    # print loc
 
     grid_x, grid_y = np.mgrid[0:21480:100j, 0:21480:100j]
     grid_z = griddata(loc, temp, (grid_x, grid_y), method='cubic')
@@ -136,7 +136,8 @@ def simulate_gastemp():
 
     def type_sin(param):
         seed()
-        return 1 + np.sin(param / 21480 * np.pi) * 0.3 * ((1 - 2 * random()) / 10 + 1)
+        return 1 + (np.sin((param / 21480 - (1-2*random())/4) * np.pi)+1) * 0.15 * ((1 - 2 * random()) / 10 + 1)
+        # return 1 + np.sin(param / 21480 * np.pi) * 0.3 * ((1 - 2 * random()) / 10 + 1)
 
     data_df = df(data, columns=['sensorKks', 'x', 'y', 'value', 'time'])
     data_df['value'] = type_sin(data_df['x'])*type_sin(data_df['y'])*700
