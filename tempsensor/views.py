@@ -89,21 +89,42 @@ def get_json_tempvalue(request):
 
 # 测试 计算火焰中心
 # 待写入异步任务
-def get_center():
+def get_center(time='last'):
     # time
-    obj = TempValue.objects.all()
+    if time == 'last':
+        t = TempValue.objects.values('time').order_by('time').last()
+        obj = TempValue.objects.order_by('sensorKks').filter(time=t['time'])
+    else:
+        obj = TempValue.objects.order_by('sensorKks').filter(time=time)
+
     serializer = TempValueSerializer(obj, many=True)
     data = serializer.data
-    x = np.array([])
-    y = np.array([])
-    value = np.array([])
+
+    loc = []
+    temp = np.array([])
     for dic in data:
-        x = np.append(x, dic['sensorKks']['x'])
-        y = np.append(y, dic['sensorKks']['y'])
-        value = np.append(value, dic['value'])
-    x_avg = np.dot(x, value.T)/value.sum()
-    y_avg = np.dot(y, value.T)/value.sum()
-    return [x_avg, y_avg]
+        loc.append([dic['sensorKks']['x'], dic['sensorKks']['y']])
+        temp = np.append(temp, dic['value'])
+    loc = np.array(loc)
+    print loc
+
+    grid_x, grid_y = np.mgrid[0:21480:100j, 0:21480:100j]
+    grid_z = griddata(loc, temp, (grid_x, grid_y), method='cubic')
+
+    z = np.nan_to_num(grid_z.T)
+    tx = grid_x.T * z.T
+    ty = grid_y.T * z.T
+
+    x_avg = tx.sum() / z.sum()
+    y_avg = ty.sum() / z.sum()
+
+    # x_avg = np.dot(x, value.T)/value.sum()
+    # y_avg = np.dot(y, value.T)/value.sum()
+    # return [x_avg, y_avg]
+
+    from tempsensor.models import TempCenter
+    c = TempCenter(center_x=x_avg, center_y=y_avg, time=obj[0].time)
+    c.save()
 
 
 # 测试 生成烟温数据
@@ -119,6 +140,6 @@ def simulate_gastemp():
 
     data_df = df(data, columns=['sensorKks', 'x', 'y', 'value', 'time'])
     data_df['value'] = type_sin(data_df['x'])*type_sin(data_df['y'])*700
-    data_df['time'] = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    data_df['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     data_df.to_csv('gastemp.csv', index=False, header=False, columns=['sensorKks', 'value', 'time'])

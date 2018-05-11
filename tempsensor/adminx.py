@@ -1,6 +1,6 @@
 # _*_ encoding:utf-8 _*_
 import xadmin
-from .models import Sensor, TempValue
+from .models import Sensor, TempValue, TempCenter
 
 
 # @xadmin.site.register(Sensor)
@@ -13,7 +13,14 @@ class SensorAdmin(object):
 class TempValueAdmin(object):
     list_display = ("sensorKks", "value", "time")
     search_fields = ["sensorKks"]
-    list_filter = ["time"]
+    list_filter = ['sensorKks', "time"]
+
+
+class TempCenterAdmin(object):
+    list_display = ('center_x', 'center_y', 'time')
+    search_fields = ['']
+    list_filter = ['time']
 
 xadmin.sites.site.register(Sensor, SensorAdmin)
 xadmin.sites.site.register(TempValue, TempValueAdmin)
+xadmin.sites.site.register(TempCenter, TempCenterAdmin)
