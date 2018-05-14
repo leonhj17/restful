@@ -121,7 +121,22 @@ function point(svg, json_data) {
     .attr('fill',function (d) {
         return color(d.value)
     })
-    ;
+  .on('mouseover',function (d) {
+      $(this).attr('fill', 'yellow').attr('opacity', '0.8');
+      tooltip.html(
+          'KKS编号：'+d.sensorKks.sensorKks+'<br />'+
+          '烟温：'+d.value+'℃'+'<br />'+
+          '时间：'+d.time+'℃'+'<br />'
+      )
+          .style('left',(d3.event.pageX)+'px')
+          .style('top',(d3.event.pageY+20)+'px')
+          .style('opacity',1.0)
+      })
+      .on('mouseout',function (d) {
+          $(this).attr('fill', color(d.value)).attr('opacity', '1');
+          tooltip.style('opacity',0.0)
+      });
+
 
   enter.append('circle')
     .attr('cx',function (d,i) {
@@ -134,7 +149,21 @@ function point(svg, json_data) {
     .attr('fill',function (d) {
         return color(d.value)
     })
-    ;
+    .on('mouseover',function (d) {
+      $(this).attr('fill', 'yellow').attr('opacity', '0.8');
+      tooltip.html(
+          'KKS编号：'+d.sensorKks.sensorKks+'<br />'+
+          '烟温：'+d.value+'℃'+'<br />'+
+          '时间：'+d.time+'<br />'
+      )
+          .style('left',(d3.event.pageX)+'px')
+          .style('top',(d3.event.pageY+20)+'px')
+          .style('opacity',1.0)
+      })
+      .on('mouseout',function (d) {
+          $(this).attr('fill', color(d.value)).attr('opacity', '1');
+          tooltip.style('opacity',0.0)
+      });
 
   exit.remove();
 
