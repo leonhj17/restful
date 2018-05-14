@@ -13,10 +13,16 @@ app.autodiscover_tasks()
 
 
 app.conf.beat_schedule = {
-    'add-every-one-minute': {
-        'task': 'tempsensor.tasks.add',
-        'schedule': crontab(),
-        'args': (16, 16),
+    # 'add-every-one-minute': {
+    #     'task': 'tempsensor.tasks.add',
+    #     'schedule': 30.0,
+    #     'args': (16, 16),
+    # },
+    #
+    'multi-every-30s': {
+        'task': 'tempsensor.tasks.simulate_gastemp',
+        'schedule': 30.0,
+        'args': (),
     }
 }
 
