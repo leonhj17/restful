@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'track/$', TemplateView.as_view(template_name='page_track.html'), name='track'),
     url(r'contour/$', TemplateView.as_view(template_name='page_contour.html'), name='contour'),
     url(r'home/$', TemplateView.as_view(template_name='page_home.html'), name='home'),
-    url(r'get_json_tempvalue/$', views.get_json_tempvalue, name='get_json_tempvalue')
+    url(r'get_json_tempvalue/$', views.get_json_tempvalue, name='get_json_tempvalue'),
+    url(r'^tempcenter/(?P<duration>[0-9]+)/$', views.TempCenterList.as_view(), name='tempcenterlist')
 ]

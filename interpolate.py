@@ -2,9 +2,9 @@
 import os
 import math
 import numpy as np
-# import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
 from django.http import JsonResponse
+from datetime import timedelta
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'restful.settings')
 
@@ -32,7 +32,10 @@ def get_temp_bytime():
     当前仅包含一组工况，暂时提取全部
     目标根据时间查询工况，或距离查询时间最近工况
     """
-    tempvalue = TempValue.objects.all()
+    # 查询并返回出最近时刻的烟温值
+    time = TempValue.objects.values('time').order_by('time').last()
+    tempvalue = TempValue.objects.order_by('sensorKks').filter(time__gt=time['time'] - timedelta(seconds=1))
+    # tempvalue = TempValue.objects.all()
     try:
         for t in tempvalue:
             temp.append(float(t.value))
@@ -81,8 +84,8 @@ if __name__ == '__main__':
     grid_x, grid_y = np.mgrid[0:21480:100j, 0:21480:100j]
     grid_z = griddata(loc, temp, (grid_x, grid_y), method='cubic')
     #
-    # print grid_x
-    # print grid_y
+    # print grid_x[:, 0]
+    # print grid_y[:, 0]
     # print grid_z
 
     # def func(x, y):
@@ -104,9 +107,20 @@ if __name__ == '__main__':
     #
     # plt.show()
     res = {}
+
     res['width'] = grid_z.shape[0]
     res['height'] = grid_z.shape[1]
+
+    z = np.nan_to_num(grid_z.T)
+    tx = grid_x.T * z.T
+    ty = grid_y.T * z.T
+
+    x_avg = tx.sum() / z.sum()
+    y_avg = ty.sum() / z.sum()
+    print x_avg, y_avg
+
     grid_z = np.nan_to_num(grid_z.T.reshape(grid_z.size, 1))
+
 
     res['values'] = grid_z.tolist()
     response = JsonResponse(res, safe=False)
