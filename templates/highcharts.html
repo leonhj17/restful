@@ -1,0 +1,70 @@
+{% load  staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="container" style="width: 1000px;height: 800px"></div>
+    <button id="get_value">获取数据</button>
+    <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
+    <script src="{% static 'js/highcharts.js' %}"></script>
+    <script>
+        var options = {
+            credits:{
+                enabled: false
+            },
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: '烟温传感器历史数据'
+            },
+            xAxis: {
+                type: 'datetime'
+{#                categories: ['苹果', '香蕉', '梨']#}
+            },
+            yAxis: {
+                title: {
+                  text: '烟温 ℃'
+                }
+            },
+            series: [
+                {name: 'kks1',
+                data: []
+                },
+{#                {#}
+{#                    name: 'kks2',#}
+{#                    data: [5,7,3]#}
+{#                }#}
+            ]
+        };
+        var chart = Highcharts.chart('container', options);
+    </script>
+    <script>
+        function get_value() {
+            d = [];
+            $.ajax({
+                url: '{% url 'tempsensor:tempvaluedetail' 1%}',
+                type: 'GET',
+                success: function (data) {
+                    for (var i=0; i<data.length; i++) {
+                        d.push(data[i].value)
+                    }
+{#                    console.log(d);#}
+{#                    return d#}
+                    chart.series[0].setData(d);
+                }
+            }
+            );
+            console.log(d);
+
+        }
+
+        $('#get_value').click(function () {
+            get_value();
+        })
+    </script>
+</body>
+</html>
