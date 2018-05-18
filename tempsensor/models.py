@@ -35,8 +35,13 @@ class TempValue(models.Model):
 
 
 class TempCenter(models.Model):
-    center_x = models.FloatField(max_length=6, default=0, verbose_name='X中心')
-    center_y = models.FloatField(max_length=6, default=0, verbose_name='Y中心')
+    center_x = models.FloatField(max_length=6, default=0, verbose_name=u'X中心')
+    center_y = models.FloatField(max_length=6, default=0, verbose_name=u'Y中心')
+    distance = models.FloatField(max_length=6, default=0, verbose_name=u'偏心距')
+    angle = models.FloatField(max_length=6, default=0, verbose_name=u'角度')
+    region = models.CharField(
+        choices=(('1', u'第一象限'), ('2', u'第二象限'), ('3', u'第三象限'), ('4', u'第四象限')), max_length=2,
+        verbose_name=u'所在象限', default= '1')
     time = models.DateTimeField(null=False, default=datetime.now())
 
     class Meta:

@@ -17,9 +17,9 @@ class TempValueAdmin(object):
 
 
 class TempCenterAdmin(object):
-    list_display = ('center_x', 'center_y', 'time')
-    search_fields = ['']
-    list_filter = ['time']
+    list_display = ('center_x', 'center_y', 'distance', 'angle', 'region', 'time')
+    search_fields = ['region']
+    list_filter = [ 'distance', 'angle', 'region', 'time']
 
 xadmin.sites.site.register(Sensor, SensorAdmin)
 xadmin.sites.site.register(TempValue, TempValueAdmin)

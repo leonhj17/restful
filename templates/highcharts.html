@@ -5,13 +5,24 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
-<body>
-    <div id="container" style="width: 1000px;height: 800px"></div>
+<body style="">
+
+    <div id="container" style="width: 1000px;height: 800px;display: block;margin: 0 auto;"></div>
+
     <button id="get_value">获取数据</button>
     <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
-    <script src="{% static 'js/highcharts.js' %}"></script>
+{#    <script src="{% static 'js/highcharts.js' %}"></script>#}
+    <script src="{% static 'js/highstock.js' %}"></script>
+    <script src="{% static 'js/exporting.js' %}"></script>
+    <script src="{% static 'js/export-data.js' %}"></script>
+    <script>
+        Highcharts.setOptions({global: {useUTC: false}});
+    </script>
     <script>
         var options = {
+            rangeSelector: {
+                selected: 1
+            },
             credits:{
                 enabled: false
             },
@@ -32,15 +43,14 @@
             },
             series: [
                 {name: 'kks1',
-                data: []
+                data: [],
+                    tooltip: {
+                        valueDecimals: 2
+                        }
                 },
-{#                {#}
-{#                    name: 'kks2',#}
-{#                    data: [5,7,3]#}
-{#                }#}
             ]
         };
-        var chart = Highcharts.chart('container', options);
+        var chart = Highcharts.stockChart('container', options);
     </script>
     <script>
         function get_value() {
@@ -50,10 +60,10 @@
                 type: 'GET',
                 success: function (data) {
                     for (var i=0; i<data.length; i++) {
-                        d.push(data[i].value)
+                        time =new Date(data[i].time);
+                        tstamp = time.getTime();
+                        d.push([tstamp, data[i].value])
                     }
-{#                    console.log(d);#}
-{#                    return d#}
                     chart.series[0].setData(d);
                 }
             }

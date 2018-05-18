@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'contour/$', TemplateView.as_view(template_name='contour.html')),
     url(r'^siderbar/$', TemplateView.as_view(template_name='siderbar.html')),
     url(r'^xadmin/', include(xadmin.site.urls)),
+    url(r'^highcharts/', TemplateView.as_view(template_name='highcharts.html'))
 ]

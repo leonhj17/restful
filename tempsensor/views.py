@@ -1,11 +1,12 @@
 # _*_ encoding:utf-8 _*_
-from .models import Sensor, TempValue
-from .serializers import SensorSerializer, TempValueSerializer
+from .models import Sensor, TempValue, TempCenter
+from .serializers import SensorSerializer, TempValueSerializer, TempCenterSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404, JsonResponse
 import numpy as np
+import math
 from scipy.interpolate import griddata
 from pandas import DataFrame as df
 from random import random, seed
@@ -62,12 +63,31 @@ class TempValueDetail(APIView):
 
     def get(self, request, id, format=None):
         try:
-            object = TempValue.objects.get(id=id)
-            serializer = TempValueSerializer(object)
+            object = TempValue.objects.filter(sensorKks_id=id)
+            serializer = TempValueSerializer(object, many=True)
             return Response(serializer.data)
         except:
             raise Http404
 
+
+# 测试view 获取假象温度中心点位置数据
+# duration 提取数据时间段，从当前时刻往前
+class TempCenterList(APIView):
+
+    def get(self, request, duration='10', format=None):
+        try:
+            t = TempCenter.objects.values('time').order_by('time').last()
+            endtime = t['time']
+            if duration == '10':
+                starttime = endtime - timedelta(minutes=10)
+            else:
+                starttime = endtime - timedelta(minutes=float(duration))
+            obj = TempCenter.objects.filter(time__range=(starttime, endtime))
+        except:
+            raise Http404
+
+        serializer = TempCenterSerializer(obj, many=True)
+        return Response(serializer.data)
 
 # 测试view 获取测点烟温点插值结果
 def get_json_tempvalue(request):
@@ -112,8 +132,8 @@ def get_center(time='last'):
     grid_z = griddata(loc, temp, (grid_x, grid_y), method='cubic')
 
     z = np.nan_to_num(grid_z.T)
-    tx = grid_x.T * z.T
-    ty = grid_y.T * z.T
+    tx = grid_x.T * z
+    ty = grid_y.T * z
 
     x_avg = tx.sum() / z.sum()
     y_avg = ty.sum() / z.sum()
@@ -121,9 +141,35 @@ def get_center(time='last'):
     # x_avg = np.dot(x, value.T)/value.sum()
     # y_avg = np.dot(y, value.T)/value.sum()
     # return [x_avg, y_avg]
+    center = np.array([10740, 10740])
+    avg = np.array([x_avg, y_avg])
+    tmp = (center-avg)**2
+    # 偏心距
+    r = np.sqrt(tmp.sum())
+
+    def get_angle(avg, center):
+        tmp = np.abs(avg-center)
+        return math.degrees(math.atan(tmp[0]/tmp[1]))
+
+    if x_avg > center[0] and y_avg < center[1]:
+        angle = get_angle(avg, center)
+        angle = float('%.2f' % angle)
+        region = '1'
+    elif x_avg > center[0] and y_avg > center[1]:
+        angle =180 - get_angle(avg, center)
+        angle = float('%.2f' % angle)
+        region = '2'
+    elif x_avg < center[0] and y_avg > center[1]:
+        angle = 180 + get_angle(avg, center)
+        angle = float('%.2f' % angle)
+        region = '3'
+    else:
+        angle = 360 - get_angle(avg, center)
+        angle = float('%.2f' % angle)
+        region = '4'
 
     from tempsensor.models import TempCenter
-    c = TempCenter(center_x=x_avg, center_y=y_avg, time=obj[0].time)
+    c = TempCenter(center_x=float('%.2f' % x_avg), center_y=float('%.2f' % y_avg), distance=float('%.2f' % r), angle=angle, region=region, time=obj[0].time)
     c.save()
 
 

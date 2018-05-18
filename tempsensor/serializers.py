@@ -24,3 +24,12 @@ class TempValueSerializer(serializers.Serializer):
         :return: 
         """
         return TempValue.objects.create(**validated_data)
+
+
+# 序列化截面温度中心参数
+class TempCenterSerializer(serializers.Serializer):
+    center_x = serializers.FloatField()
+    center_y = serializers.FloatField()
+    distance = serializers.FloatField()
+    angle = serializers.FloatField()
+    time = serializers.DateTimeField()

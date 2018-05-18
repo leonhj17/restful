@@ -54,7 +54,7 @@
     <script>
       var width = 800,
           height = 800,
-          radius = Math.min(width, height) / 2 - 30;
+          radius = Math.min(width, height) / 2 - 35;
       console.log(radius);
 
     var data = [
@@ -133,7 +133,7 @@
         .attr("transform", function(d) {
             return d < 270 && d > 90 ? "rotate(180 " + (radius+6) + ",0)" : null;
         })
-        .text(function(d,i) { return i*3 + ":00" });
+        .text(function(d,i) { return i*45 + ".0°" });
 
       var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
         i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),
