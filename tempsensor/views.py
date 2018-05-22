@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404, JsonResponse
+from django.shortcuts import render
 import numpy as np
 import math
 from scipy.interpolate import griddata
@@ -190,3 +191,9 @@ def simulate_gastemp():
     data_df['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     data_df.to_csv('gastemp.csv', index=False, header=False, columns=['sensorKks', 'value', 'time'])
+
+
+# 测试获取点击测点编号
+def highcharats_get_kksid(request, id):
+    print id
+    return render(request, 'highcharts.html', {'id': id})

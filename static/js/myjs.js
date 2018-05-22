@@ -138,7 +138,12 @@ function point(svg, json_data) {
       });
 
 
-  enter.append('circle')
+  enter
+      .append('a')
+      .attr('xlink:href', function (d, i) {
+          return '/highcharts/'+d.sensorKks.id
+      })
+      .append('circle')
     .attr('cx',function (d,i) {
         return xscale(d.sensorKks.x)
     })
