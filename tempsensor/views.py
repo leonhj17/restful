@@ -40,6 +40,7 @@ class SensorDetail(APIView):
         return Response(serializer.data)
 
 
+# 获取现场值页面烟温数据
 class TempValueList(APIView):
     """
     list all Temp Value
@@ -60,12 +61,16 @@ class TempValueList(APIView):
         return Response(value_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 获取烟温历史数据
 class TempValueDetail(APIView):
 
     def get(self, request, id, format=None):
         try:
-            object = TempValue.objects.filter(sensorKks_id=id)
-            serializer = TempValueSerializer(object, many=True)
+            obj = TempValue.objects.filter(sensorKks_id=id)
+            # # 测试DRF性能优化
+            # obj = TempValueSerializer.get_eager_loading(obj)
+            obj = obj.prefetch_related('sensorKks')
+            serializer = TempValueSerializer(obj, many=True)
             return Response(serializer.data)
         except:
             raise Http404
@@ -89,6 +94,7 @@ class TempCenterList(APIView):
 
         serializer = TempCenterSerializer(obj, many=True)
         return Response(serializer.data)
+
 
 # 测试view 获取测点烟温点插值结果
 def get_json_tempvalue(request):
