@@ -2,6 +2,32 @@
  * Created by Thinkpad on 2018/3/23.
  */
 ///////////////////////////////////////////////////////////////
+//Datetime 格式化
+// 对Date的扩展，将 Date 转化为指定格式的String
+// 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+// 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+// 例子：
+// (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+// (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+(function () {
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+};
+})();
+
+
 //右侧工具条
     $('#hide').click(function () {
      $('#test').animate({width: 'toggle'}, 'fast')
@@ -123,10 +149,11 @@ function point(svg, json_data) {
     })
   .on('mouseover',function (d) {
       $(this).attr('fill', 'yellow').attr('opacity', '0.8');
+      t = new Date(d.time);
       tooltip.html(
           'KKS编号：'+d.sensorKks.sensorKks+'<br />'+
           '烟温：'+d.value+'℃'+'<br />'+
-          '时间：'+d.time+'℃'+'<br />'
+          '时间：'+t.Format('yyyy-MM-dd hh:mm:ss')+'<br />'
       )
           .style('left',(d3.event.pageX)+'px')
           .style('top',(d3.event.pageY+20)+'px')
@@ -156,10 +183,11 @@ function point(svg, json_data) {
     })
     .on('mouseover',function (d) {
       $(this).attr('fill', 'yellow').attr('opacity', '0.8');
+      t = new Date(d.time);
       tooltip.html(
           'KKS编号：'+d.sensorKks.sensorKks+'<br />'+
           '烟温：'+d.value+'℃'+'<br />'+
-          '时间：'+d.time+'<br />'
+          '时间：'+t.Format('yyyy-MM-dd hh:mm:ss')+'<br />'
       )
           .style('left',(d3.event.pageX)+'px')
           .style('top',(d3.event.pageY+20)+'px')
@@ -182,7 +210,7 @@ function legendPlot(svg, uplimit, dnlimit, space) {
 
     var ldata = d3.range(uplimit, dnlimit, space);
     var lheight =height/ldata.length;
-    console.log(height, ldata);
+    // console.log(height, ldata);
     var update = svg.selectAll('rect').data(ldata);
 
     var enter = update.enter();
@@ -252,3 +280,4 @@ function scatterLegendPlot(svg, uplimit, dnlimit, space) {
     exit.remove();
 
 }
+
