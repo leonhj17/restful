@@ -66,10 +66,11 @@ class TempValueDetail(APIView):
 
     def get(self, request, id, format=None):
         try:
-            obj = TempValue.objects.filter(sensorKks_id=id)
+            obj = TempValue.objects.filter(sensorKks_id=id).select_related('sensorKks')
             # # 测试DRF性能优化
             # obj = TempValueSerializer.get_eager_loading(obj)
-            obj = obj.prefetch_related('sensorKks')
+            # obj = obj.prefetch_related('sensorKks')
+            # obj = obj.select_related('sensorKks')
             serializer = TempValueSerializer(obj, many=True)
             return Response(serializer.data)
         except:
@@ -88,7 +89,7 @@ class TempCenterList(APIView):
                 starttime = endtime - timedelta(minutes=10)
             else:
                 starttime = endtime - timedelta(minutes=float(duration))
-            obj = TempCenter.objects.filter(time__range=(starttime, endtime))
+            obj = TempCenter.objects.filter(time__range=(starttime, endtime)).order_by('-time')
         except:
             raise Http404
 

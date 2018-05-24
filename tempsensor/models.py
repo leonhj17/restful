@@ -23,7 +23,7 @@ class Sensor(models.Model):
 
 
 class TempValue(models.Model):
-    sensorKks = models.ForeignKey(Sensor, on_delete=models.CASCADE)
+    sensorKks = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='tempvalue')
     value = models.CharField(max_length=6, default=0)
     time = models.DateTimeField()
 
