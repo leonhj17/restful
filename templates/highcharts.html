@@ -58,7 +58,8 @@
         function get_value() {
             d = [];
             $.ajax({
-                url: '/tempvalue/{{ id }}',
+                {#url: '/tempvalue/{{ id }}',#}
+                url: "{% url 'tempsensor:tempvaluedetail' id %}",
                 type: 'GET',
                 success: function (data) {
                     for (var i=0; i<data.length; i++) {
