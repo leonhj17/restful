@@ -1,0 +1,80 @@
+{% extends 'page_home.html' %}
+{% load  staticfiles %}
+
+{% block title %}
+    <title>历史烟温</title>
+{% endblock title %}
+
+{% block main_svg %}
+    <div  class="container container-fluid">
+        <div class="row justify-content-center">
+            <div id="highchart" style="width: 1000px;height: 800px;display: block;margin-top: 80px"></div>
+        </div>
+    </div>
+
+{% endblock main_svg %}
+
+{% block custom_js %}
+    <script src="{% static 'js/highstock.js' %}"></script>
+    <script src="{% static 'js/exporting.js' %}"></script>
+    <script src="{% static 'js/export-data.js' %}"></script>
+    <script>
+        Highcharts.setOptions({global: {useUTC: false}});
+    </script>
+    <script>
+        var options = {
+            rangeSelector: {
+                selected: 1
+            },
+            credits:{
+                enabled: false
+            },
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: '烟温传感器历史数据'
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                  text: '烟温 ℃'
+                }
+            },
+            series: [
+                {name: 'kks1',
+                data: [],
+                    tooltip: {
+                        valueDecimals: 2
+                        }
+                },
+            ]
+        };
+        var chart = Highcharts.stockChart('highchart', options);
+    </script>
+    <script>
+        function get_value() {
+            d = [];
+            $.ajax({
+                url: '/tempvalue/{{ id }}',
+                type: 'GET',
+                success: function (data) {
+                    for (var i=0; i<data.length; i++) {
+                        time =new Date(data[i].time);
+                        tstamp = time.getTime();
+                        d.push([tstamp, data[i].value])
+                    }
+                    chart.series[0].name = data[0].sensorKks.sensorKks;
+                    chart.series[0].setData(d);
+                }
+            }
+            );
+            console.log(d);
+        }
+        $(document).ready(function () {
+            get_value();
+        });
+    </script>
+{% endblock custom_js %}
