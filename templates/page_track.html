@@ -11,23 +11,19 @@
     fill: none;
     stroke: #000;
   }
-
   .axis text {
     font: 10px sans-serif;
   }
-
   .axis line,
   .axis circle {
     fill: none;
     stroke: steelblue;
     stroke-dasharray: 4;
   }
-
   .axis:last-of-type circle {
     stroke: steelblue;
     stroke-dasharray: none;
   }
-
   .line {
     fill: none;
     stroke: orange;
@@ -42,7 +38,7 @@
         <div class="row" style="margin-top: 4%; padding-top: 4%">
             <div class="col-md-12" style="text-align: center">
                 <svg id="svgtrack" width=800 height=800 style="border: 0px solid silver;"></svg>
-                <svg id="legend" width=100 height=800 style="border: 1px solid silver; margin-left: 10px"></svg>
+                <svg id="legend" width=100 height=800 style="border: 0px solid silver; margin-left: 10px"></svg>
             </div>
         </div>
         <!-- class=row -->
@@ -52,232 +48,16 @@
 {% block custom_js %}
     <script src="{% static 'js/underscore.js' %}"></script>
     <script>
-      var width = 800,
-          height = 800,
-          radius = Math.min(width, height) / 2 - 30;
-
+        var svgtrack = d3.select('#svgtrack');
+        var svgtracklegend = d3.select('#legend');
+        var tooltip = d3.select('body')
+        .append('div')
+        .attr('class','tooltips')
+        .attr('opacity',0);
       d3.json('{% url 'tempsensor:tempcenterlist' 20 %}', function (data) {
-          var distance = [];
-          for (var i=0 ;i<data.length ;i++ ) {
-              distance.push(data[i].distance)
-          }
-
-          var max = Math.max.apply(null, distance);
-
-          if ( String(Math.floor(max)).length === 3 ) {
-              max = Math.ceil(max/100)*100;
-              console.log(max);
-          }else if (String(Math.floor(max)).length === 2) {
-              max = Math.ceil(max/10)*10;
-              console.log(max);
-          }else {
-              console.log('****')
-          }
-
-          var angle = d3.scaleLinear()
-          .domain([0, 360])
-          .range([0, 2 * Math.PI]);
-
-          var r = d3.scaleLinear()
-          .domain([0, max])
-          .range([0, radius]);
-           //根据svg（宽度或高度）确定极坐标半径
-
-          var opc = d3.scaleLinear()
-              .domain([0,data.length])
-              .range([1,0]);
-
-          var svg = d3.select("#svgtrack")
-            .append("g")
-            .attr('class', 'center')
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-    //添加g元素，定位与svg中心点
-          var gr = svg.append("g")
-              .attr("class", "r axis")
-              .selectAll("g")
-              .data(r.ticks(10).slice(1))
-              .enter().append("g");
-
-        //gr.append("circle")
-        // .attr('r', r); 与下面实现效果相同
-        //用以根据r的极值，绘制极坐标环线
-        gr.append("circle")
-              .attr("r", function (d) {
-                  return r(d)
-              });
-        //绘制极坐标环线标识
-        gr.append("text")
-            .attr("y", function(d) { return -r(d)-4 ; })
-            .attr("transform", "rotate(20)")
-            .style("text-anchor", "middle")
-            .text(function(d) { return d; });
-        //在g.center元素下，添加g.a axis元素
-          //继续添加g元素，并依次旋转-90 ~ 225°
-          //原translate处理将中心定位到svg中心
-          //rotate后，将坐标轴（x,y）也依次作相应角度旋转
-        var ga = svg.append("g")
-              .attr("class", "a axis")
-              .selectAll("g")
-              .data(d3.range(-90, 270, 45))
-              .enter().append("g")
-              .attr("transform", function(d) {
-                return "rotate(" + d + ")";
-            });
-        //line依照各自坐标轴添加，为定义参数，x1,y1,y2默认为0
-        ga.append("line")
-              .attr("x2", radius);
-
-        ga.append("text")
-            .attr("x", radius + 6)
-            .attr("dy", "0.35em")
-            .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
-            .attr("transform", function(d) {
-                return d < 270 && d > 90 ? "rotate(180 " + (radius+6) + ",0)" : null;
-            })
-            .text(function(d,i) { return i*45 + "°" });
-
-          var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),
-            i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),
-            interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); },
-            color = d3.scaleSequential(interpolateTerrain).domain([0, 500]);
-
-        //返回path，从原点出发，指向返回值
-        var rline = d3.lineRadial()
-              .angle(function(d) {
-                return angle(d[0]);
-              })
-              .radius(function(d) {
-                return r(d[1]);
-              });
-
-        svg.selectAll("point")
-              .data(data)
-              .enter()
-              .append("circle")
-              .attr("class", "point")
-              .attr("transform", function(d) {
-                  {#console.log([d.angle,d.distance])#}
-                  //去除类数组元素第一个及最后一个元素；
-                var coors = rline([[d.angle,d.distance]]).slice(1).slice(0, -1);
-                console.log(coors);
-                console.log([d]);
-                return "translate(" + coors + ")"
-              })
-              .attr("r", 10)
-              .attr('opacity', function(d,i) {
-                  return  opc(i)
-              })
-              .attr("fill", 'green');
+            trackPlot(svgtrack, data);
+            trackLegendPlot(svgtracklegend, data)
       }
           );
-
-    {#var data = [#}
-    {#  [0, 0.4],#}
-    {#  [6, 0.2],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()],#}
-    {#  [Math.random()*24, Math.random()]#}
-    {#];#}
-    {#console.log(data);#}
-    {#var y = _.map(data, _.last);#}
-    {##}
-    {#var max =  Math.max.apply(null, y);#}
-    {#max = Math.ceil(max*10)/10;#}
-    {#//Math.ceil:向上舍入#}
-    {#var angle = d3.scaleLinear()#}
-    {#    .domain([0, 24])#}
-    {#    .range([0, 2 * Math.PI]);#}
-    {##}
-    {#var r = d3.scaleLinear()#}
-    {#      .domain([0, max])#}
-    {#      .range([0, radius]);#}
-    {#//根据svg（宽度或高度）确定极坐标半径#}
-    {##}
-    {#var svg = d3.select("#svgtrack")#}
-    {#      .append("g")#}
-    {#    .attr('class', 'center')#}
-    {#      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");#}
-    {#//添加g元素，定位与svg中心点#}
-    {#var gr = svg.append("g")#}
-    {#      .attr("class", "r axis")#}
-    {#      .selectAll("g")#}
-    {#      .data(r.ticks(max*10).slice(1))#}
-    {#      .enter().append("g");#}
-    {##}
-    {#//gr.append("circle")#}
-    {#// .attr('r', r); 与下面实现效果相同#}
-    {#//用以根据r的极值，绘制极坐标环线#}
-    {#gr.append("circle")#}
-    {#      .attr("r", function (d) {#}
-    {#          return r(d)#}
-    {#      });#}
-    {#//绘制极坐标环线标识#}
-    {#gr.append("text")#}
-    {#    .attr("y", function(d) { return -r(d)-4 ; })#}
-    {#    .attr("transform", "rotate(20)")#}
-    {#    .style("text-anchor", "middle")#}
-    {#    .text(function(d) { return d; });#}
-    {#//在g.center元素下，添加g.a axis元素#}
-    {#  //继续添加g元素，并依次旋转-90 ~ 225°#}
-    {#  //原translate处理将中心定位到svg中心#}
-    {#  //rotate后，将坐标轴（x,y）也依次作相应角度旋转#}
-    {#var ga = svg.append("g")#}
-    {#      .attr("class", "a axis")#}
-    {#      .selectAll("g")#}
-    {#      .data(d3.range(-90, 270, 45))#}
-    {#      .enter().append("g")#}
-    {#      .attr("transform", function(d) {#}
-    {#        return "rotate(" + d + ")";#}
-    {#    });#}
-    {#//line依照各自坐标轴添加，为定义参数，x1,y1,y2默认为0#}
-    {#ga.append("line")#}
-    {#      .attr("x2", radius);#}
-    {##}
-    {#ga.append("text")#}
-    {#    .attr("x", radius + 6)#}
-    {#    .attr("dy", "0.35em")#}
-    {#    .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })#}
-    {#    .attr("transform", function(d) {#}
-    {#        return d < 270 && d > 90 ? "rotate(180 " + (radius+6) + ",0)" : null;#}
-    {#    })#}
-    {#    .text(function(d,i) { return i*45 + ":00" });#}
-    {##}
-    {#  var i0 = d3.interpolateHsvLong(d3.hsv(120, 1, 0.65), d3.hsv(60, 1, 0.90)),#}
-    {#    i1 = d3.interpolateHsvLong(d3.hsv(60, 1, 0.90), d3.hsv(0, 1, 0.95)),#}
-    {#    interpolateTerrain = function(t) { return t < 0.5 ? i0(t * 2) : i1((t - 0.5) * 2); },#}
-    {#    color = d3.scaleSequential(interpolateTerrain).domain([0, 1]);#}
-    {##}
-    {#//返回path，从原点出发，指向返回值#}
-    {#var rline = d3.lineRadial()#}
-    {#      .angle(function(d) {#}
-    {#        return angle(d[0]);#}
-    {#      })#}
-    {#      .radius(function(d) {#}
-    {#        return r(d[1]);#}
-    {#      });#}
-    {##}
-    {##}
-    {#svg.selectAll("point")#}
-    {#      .data(data)#}
-    {#      .enter()#}
-    {#      .append("circle")#}
-    {#      .attr("class", "point")#}
-    {#      .attr("transform", function(d) {#}
-    {#          //去除类数组元素第一个及最后一个元素；#}
-    {#        var coors = rline([d]).slice(1).slice(0, -1);#}
-    {#        console.log(coors)#}
-    {#        return "translate(" + coors + ")"#}
-    {#      })#}
-    {#      .attr("r", 10)#}
-    {#      .attr("fill",function(d,i){#}
-    {#        return color(d[1]);#}
-    {#      });#}
     </script>
 {% endblock custom_js %}

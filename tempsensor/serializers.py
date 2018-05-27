@@ -31,4 +31,5 @@ class TempCenterSerializer(serializers.Serializer):
     center_y = serializers.FloatField()
     distance = serializers.FloatField()
     angle = serializers.FloatField()
+    region = serializers.CharField()
     time = serializers.DateTimeField()

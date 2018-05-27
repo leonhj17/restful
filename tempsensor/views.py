@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404, JsonResponse
+from django.shortcuts import render
 import numpy as np
 import math
 from scipy.interpolate import griddata
@@ -61,12 +62,17 @@ class TempValueList(APIView):
         return Response(value_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# 获取烟温历史数据
 class TempValueDetail(APIView):
 
     def get(self, request, id, format=None):
         try:
-            object = TempValue.objects.get(id=id)
-            serializer = TempValueSerializer(object)
+            obj = TempValue.objects.filter(sensorKks_id=id).select_related('sensorKks')
+            # # 测试DRF性能优化
+            # obj = TempValueSerializer.get_eager_loading(obj)
+            # obj = obj.prefetch_related('sensorKks')
+            # obj = obj.select_related('sensorKks')
+            serializer = TempValueSerializer(obj, many=True)
             return Response(serializer.data)
         except:
             raise Http404
@@ -101,7 +107,7 @@ class TempCenterList(APIView):
                 starttime = endtime - timedelta(minutes=10)
             else:
                 starttime = endtime - timedelta(minutes=float(duration))
-            obj = TempCenter.objects.filter(time__range=(starttime, endtime))
+            obj = TempCenter.objects.filter(time__range=(starttime, endtime)).order_by('-time')
         except:
             raise Http404
 
@@ -202,3 +208,9 @@ def simulate_gastemp():
     data_df['time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     data_df.to_csv('gastemp.csv', index=False, header=False, columns=['sensorKks', 'value', 'time'])
+
+
+# 测试获取点击测点编号
+def highcharats_get_kksid(request, id):
+    print id
+    return render(request, 'highcharts.html', {'id': id})
