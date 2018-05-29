@@ -5,6 +5,25 @@
     <title>历史烟温</title>
 {% endblock title %}
 
+{% block tool_menu %}
+    <div id="test">
+        <div id="content-left">
+              <form action="#">
+                  <fieldset>
+                    <label for="radius">KKS编号</label>
+                    <select name="selector" id="kks_selector">
+                        {% for s in sensor %}
+                            <option value="{{ s.get_absolute_url }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
+                        {% endfor %}
+                    </select>
+                  </fieldset>
+                </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+
 {% block main_svg %}
     <div  class="container container-fluid">
         <div class="row justify-content-center">
@@ -55,11 +74,13 @@
         var chart = Highcharts.stockChart('highchart', options);
     </script>
     <script>
-        function get_value() {
+
+        var url = "{% url 'tempsensor:tempvaluedetail' id %}";
+
+        function get_value(url) {
             d = [];
             $.ajax({
-                {#url: '/tempvalue/{{ id }}',#}
-                url: "{% url 'tempsensor:tempvaluedetail' id %}",
+                url : url,
                 type: 'GET',
                 success: function (data) {
                     for (var i=0; i<data.length; i++) {
@@ -73,9 +94,24 @@
             }
             );
             console.log(d);
+
         }
+
         $(document).ready(function () {
-            get_value();
+            get_value(url);
         });
+
+        var kksSelector = $('#kks_selector');
+        kksSelector.selectmenu().selectmenu("menuWidget")
+            .addClass("overflow");
+
+        kksSelector.selectmenu({
+            select: function (event, data) {
+                var url = data.item.value;
+                get_value(url);
+            }
+        });
+
+
     </script>
 {% endblock custom_js %}

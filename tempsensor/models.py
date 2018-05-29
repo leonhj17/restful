@@ -15,6 +15,10 @@ class Sensor(models.Model):
     row = models.IntegerField(default=-1)
     column = models.IntegerField(default=-1)
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('tempsensor:tempvaluedetail', args=[str(self.id)])
+
     def __str__(self):
         return self.sensorKks
 
