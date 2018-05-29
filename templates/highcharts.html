@@ -5,6 +5,25 @@
     <title>历史烟温</title>
 {% endblock title %}
 
+{% block tool_menu %}
+    <div id="test">
+        <div id="content-left">
+              <form action="#">
+                  <fieldset>
+                    <label for="radius">KKS编号</label>
+                    <select name="selector" id="kks_selector">
+                        {% for s in sensor %}
+                            <option value="{{ s.id }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
+                        {% endfor %}
+                    </select>
+                  </fieldset>
+                </form>
+        </div>
+    </div>
+{% endblock %}
+
+
+
 {% block main_svg %}
     <div  class="container container-fluid">
         <div class="row justify-content-center">
@@ -58,7 +77,8 @@
         function get_value() {
             d = [];
             $.ajax({
-                url: '/tempvalue/{{ id }}',
+{#                url: '/tempvalue/{{ id }}',#}
+                url : "{% url 'tempsensor:tempvaluedetail' id %}",
                 type: 'GET',
                 success: function (data) {
                     for (var i=0; i<data.length; i++) {
@@ -78,5 +98,17 @@
         $(document).ready(function () {
             get_value();
         });
+
+        var kksSelector = $('#kks_selector');
+        kksSelector.selectmenu().selectmenu("menuWidget")
+            .addClass("overflow");
+
+        kksSelector.selectmenu({
+            select: function (event, data) {
+                console.log(data.item.value)
+            }
+        });
+
+
     </script>
 {% endblock custom_js %}

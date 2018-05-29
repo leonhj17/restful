@@ -432,8 +432,6 @@ function trackLegendPlot(svg, data) {
         .attr('height', lheight)
         .style('fill', 'green')
         .attr('opacity', function (d, i) {
-            console.log('i:'+i);
-            console.log('opc:'+opc(i));
             return opc(i)
         })
         .attr('id', function (d, i) {
@@ -476,7 +474,8 @@ function trackLegendPlot(svg, data) {
           var id = $(this).attr('id');
 
           var selected =$('.point#'+id);
-          selected.attr('fill', 'yellow');
+          selected.attr('fill', 'yellow')
+              .attr('opacity', 1);
 
           t = new Date(d.time);
           tooltip.html(
@@ -493,7 +492,8 @@ function trackLegendPlot(svg, data) {
 
               var id = $(this).attr('id');
               var selected =$('.point#'+id);
-              selected.attr('fill', 'green');
+              selected.attr('fill', 'green')
+                  .attr('opacity', opc(i));
 
               tooltip.style('opacity',0.0)
         });

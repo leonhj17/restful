@@ -35,8 +35,8 @@ def get_temp_bytime():
     """
     # 查询并返回出最近时刻的烟温值
     time = TempValue.objects.values('time').order_by('time').last()
-    tempvalue = TempValue.objects.order_by('sensorKks').filter(time__gt=time['time'] - timedelta(seconds=1))
-    # tempvalue = TempValue.objects.all()
+    # tempvalue = TempValue.objects.order_by('sensorKks').filter(time__gt=time['time'] - timedelta(seconds=1))
+    tempvalue = TempValue.objects.order_by('sensorKks').filter(time=time['time']).select_related('sensorKks')
     try:
         for t in tempvalue:
             temp.append(float(t.value))
@@ -121,7 +121,6 @@ if __name__ == '__main__':
     print x_avg, y_avg
 
     grid_z = np.nan_to_num(grid_z.T.reshape(grid_z.size, 1))
-
 
     res['values'] = grid_z.tolist()
     response = JsonResponse(res, safe=False)

@@ -202,5 +202,6 @@ def simulate_gastemp():
 
 # 测试获取点击测点编号
 def highcharats_get_kksid(request, id):
+    sensor = Sensor.objects.all()
     print id
-    return render(request, 'highcharts.html', {'id': id})
+    return render(request, 'highcharts.html', {'id': id, 'sensor': sensor, 'iid': int(id)})
