@@ -6,18 +6,46 @@
 {% endblock title %}
 
 {% block tool_menu %}
-    <div id="test">
+    <div id="test" style="width: 300px !important;">
         <div id="content-left">
-              <form action="#">
-                  <fieldset>
-                    <label for="radius">KKS编号</label>
-                    <select name="selector" id="kks_selector">
-                        {% for s in sensor %}
-                            <option value="{{ s.id }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
-                        {% endfor %}
-                    </select>
-                  </fieldset>
-                </form>
+            <div class="toolbar">
+                <label for="radius">曲线1：KKS编号</label>
+                <br>
+                <select name="selector" id="kks_selector1">
+                    {% for s in sensor %}
+                        <option value="{{ s.get_absolute_url }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
+                    {% endfor %}
+                </select>
+
+                <button id="kks1_btn_p"><span class="ui-icon ui-icon-plus"></span></button>
+            </div>
+
+            <div class="toolbar" style="display: block;" id="kks2">
+                <label for="radius">曲线2：KKS编号</label>
+                <br>
+                <select name="selector" id="kks_selector2">
+                    {% for s in sensor %}
+                        <option value="{{ s.get_absolute_url }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
+                    {% endfor %}
+                </select>
+
+                <button id="kks2_btn_p"><span class="ui-icon ui-icon-plus"></span></button>
+                <button id="kks2_btn_m"><span class="ui-icon ui-icon-minus"></span></button>
+
+            </div>
+
+            <div class="toolbar" style="display: block;" id="kks3">
+                <label for="radius">曲线3：KKS编号</label>
+                <br>
+                <select name="selector" id="kks_selector3">
+                    {% for s in sensor %}
+                        <option value="{{ s.get_absolute_url }}" {% if iid == s.id %}selected="selected"{% endif %}>{{ s.sensorKks }}</option>
+                    {% endfor %}
+                </select>
+
+                <button id="kks3_btn_m"><span class="ui-icon ui-icon-minus"></span></button>
+            </div>
+
         </div>
     </div>
 {% endblock %}
@@ -30,6 +58,11 @@
             <div id="highchart" style="width: 1000px;height: 800px;display: block;margin-top: 80px"></div>
         </div>
     </div>
+
+{#    <select class="jquery_ui_selector">#}
+{#        <option>添加</option>#}
+{#        <option>删除</option>#}
+{#    </select>#}
 
 {% endblock main_svg %}
 
@@ -64,21 +97,24 @@
             },
             series: [
                 {name: 'kks1',
+                type: 'spline',
                 data: [],
                     tooltip: {
                         valueDecimals: 2
                         }
-                },
+                }
             ]
         };
         var chart = Highcharts.stockChart('highchart', options);
     </script>
     <script>
-        function get_value() {
+
+        var url = "{% url 'tempsensor:tempvaluedetail' id %}";
+
+        function get_value(url) {
             d = [];
             $.ajax({
-{#                url: '/tempvalue/{{ id }}',#}
-                url : "{% url 'tempsensor:tempvaluedetail' id %}",
+                url : url,
                 type: 'GET',
                 success: function (data) {
                     for (var i=0; i<data.length; i++) {
@@ -86,26 +122,127 @@
                         tstamp = time.getTime();
                         d.push([tstamp, data[i].value])
                     }
+{#                    console.log(chart.series.length);#}
+                    chart.series[0].id = 'line1';
                     chart.series[0].name = data[0].sensorKks.sensorKks;
                     chart.series[0].setData(d);
                 }
             }
             );
-            console.log(d);
+        }
 
+        function add_value(url, id, color) {
+            d = [];
+            $.ajax({
+                url : url,
+                type: 'GET',
+                success: function (data) {
+                    for (var i=0; i<data.length; i++) {
+                        time =new Date(data[i].time);
+                        tstamp = time.getTime();
+                        d.push([tstamp, data[i].value])
+                    }
+                    if (!has_id(chart, id)) {
+                        chart.addSeries({
+                        color: color,
+                        name: data[0].sensorKks.sensorKks,
+                        type: 'spline',
+                        data: d,
+                            tooltip: {
+                                valueDecimals: 2
+                                }
+                    });
+                        chart.series[chart.series.length-2].id = id;
+                    }else {
+                        index = has_id(chart, id);
+                        chart.series[index].name = data[0].sensorKks.sensorKks;
+                        chart.series[index].setData(d);
+                    }
+                }
+            }
+            );
+        }
+
+        function has_id (chart, id) {
+            for(var i=0; i<chart.series.length; i++ ) {
+                if (chart.series[i].id === id) {
+                    var index = chart.series[i].index;
+                    return index;
+                }
+            }
+            return false;
+        }
+
+        function remove_value(chart, id) {
+            var index = has_id(chart, id);
+            chart.series[index].remove();
         }
 
         $(document).ready(function () {
-            get_value();
+            get_value(url, 0);
+            $("#kks2").hide();
+            $("#kks3").hide();
+
+{#            $(".jquery_ui_selector").selectmenu({#}
+{#            icons: {button: 'ui-icon-circle-triangle-s'},#}
+{#            appendTo: ".highcharts-title"#}
+{#        });#}
         });
 
-        var kksSelector = $('#kks_selector');
-        kksSelector.selectmenu().selectmenu("menuWidget")
+        var kksSelector1 = $('#kks_selector1');
+        kksSelector1.selectmenu({width: 180}).selectmenu("menuWidget")
             .addClass("overflow");
 
-        kksSelector.selectmenu({
+        var kksSelector2 = $('#kks_selector2');
+        kksSelector2.selectmenu({width: 180}).selectmenu("menuWidget")
+            .addClass("overflow");
+
+        var kksSelector3 = $('#kks_selector3');
+        kksSelector3.selectmenu({width: 180}).selectmenu("menuWidget")
+            .addClass("overflow");
+
+
+        var kks1_btn_p = $("#kks1_btn_p");
+        var kks2_btn_p = $("#kks2_btn_p");
+        var kks2_btn_m = $("#kks2_btn_m");
+        var kks3_btn_m = $("#kks3_btn_m");
+
+        kks1_btn_p.on('click', function () {
+           $("#kks2").show();
+        });
+
+        kks2_btn_p.on('click', function () {
+           $("#kks3").show();
+        });
+
+        kks2_btn_m.on('click', function () {
+            remove_value(chart, 'line2');
+            $("#kks2").hide();
+        });
+
+        kks3_btn_m.on('click', function () {
+            remove_value(chart, 'line3');
+            $("#kks3").hide();
+        });
+
+        kksSelector1.selectmenu({
             select: function (event, data) {
-                console.log(data.item.value)
+                var url = data.item.value;
+                get_value(url);
+            }
+        });
+
+        kksSelector2.selectmenu({
+            select: function (event, data) {
+                var url = data.item.value;
+                add_value(url, 'line2', '#2F4F4F')
+            }
+        });
+
+        kksSelector3.selectmenu({
+            select: function (event, data) {
+                var url = data.item.value;
+                add_value(url, 'line3', '#90EE90')
             }
         });
 

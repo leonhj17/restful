@@ -21,6 +21,10 @@ class Sensor(models.Model):
     class Meta:
         ordering = ("y", 'x')
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('tempsensor:tempvaluedetail', args=[self.id])
+
 
 class TempValue(models.Model):
     sensorKks = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='tempvalue')
