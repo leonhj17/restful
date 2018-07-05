@@ -1,0 +1,69 @@
+{% extends 'page_home.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>烟温概况</title>
+{% endblock title %}
+
+{% block main_svg %}
+    <div  class="container container-fluid">
+        <div class="row justify-content-center">
+            <svg id="regionPie" width=800 height=800 style="border: 1px solid silver;display: block;margin-top: 80px"></svg>
+        </div>
+    </div>
+{% endblock main_svg %}
+
+{% block custom_js %}
+    <script src="{% static 'js/highstock.js' %}"></script>
+    <script src="{% static 'js/exporting.js' %}"></script>
+    <script src="{% static 'js/export-data.js' %}"></script>
+
+    <script>
+        var regionPie = d3.select('#regionPie');
+        var height = regionPie.attr('height');
+        var width = regionPie.attr('width');
+
+        regionPie = regionPie.append("g")
+            .attr('transform', 'translate('+width/2+","+height/2+")");
+
+        var outerR = width/3;
+        var innerR = width/5;
+
+        var regiondata = [['1', 470], ['2', 474], ['3', 480], ['4', 463]];
+
+        var Piedata = d3.pie().value(function (d) {
+            return d[1];
+        })
+            .sortValues(null)(regiondata);
+
+        var path = d3.arc()
+            .innerRadius(innerR)
+            .outerRadius(outerR);
+
+        var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+        var arc = regionPie.selectAll(".arc")
+            .data(Piedata)
+            .enter()
+            .append("g")
+            .attr('class', 'arc');
+
+        arc.append("path")
+            .attr("d", path)
+            .attr("fill", function (d,i) {
+                return color(i)
+            });
+
+        arc.append("text")
+            .attr("transform", function (d) {
+                return "translate("+path.centroid(d)+")"
+            })
+            .attr('dy', '0.35em')
+            .text(function (d) {
+                console.log(d.data[0]);
+                return d.data[0];
+            })
+            .attr("fill", 'black');
+
+    </script>
+{% endblock custom_js %}
