@@ -205,3 +205,25 @@ def highcharats_get_kksid(request, id):
     sensor = Sensor.objects.all()
     print id
     return render(request, 'highcharts.html', {'id': id, 'sensor': sensor, 'iid': int(id)})
+
+
+# 获得温度最高值
+def TempValueMax(request):
+    pass
+
+
+# 获得假象烟温中心所在象限出现频数
+def regionFrequency(request):
+    tc = TempCenter.objects.values()
+    tcf = df(list(tc))
+    res = tcf.groupby('region').size()
+
+    res = res.to_dict()
+    json = []
+    for k, v in res.iteritems():
+        temp = {}
+        temp['region'] = k
+        temp['value'] = int(v)
+        json.append(temp)
+
+    return JsonResponse(json, safe=False)

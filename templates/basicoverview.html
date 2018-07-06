@@ -20,50 +20,58 @@
 
     <script>
         var regionPie = d3.select('#regionPie');
-        var height = regionPie.attr('height');
-        var width = regionPie.attr('width');
 
-        regionPie = regionPie.append("g")
-            .attr('transform', 'translate('+width/2+","+height/2+")");
+        function regionPiePlot(regionPie, regiondata) {
+            var height = regionPie.attr('height');
+            var width = regionPie.attr('width');
 
-        var outerR = width/3;
-        var innerR = width/5;
+            regionPie = regionPie.append("g")
+                .attr('transform', 'translate('+width/2+","+height/2+")");
 
-        var regiondata = [['1', 470], ['2', 474], ['3', 480], ['4', 463]];
+            var outerR = width/3;
+            var innerR = width/5;
 
-        var Piedata = d3.pie().value(function (d) {
-            return d[1];
-        })
-            .sortValues(null)(regiondata);
-
-        var path = d3.arc()
-            .innerRadius(innerR)
-            .outerRadius(outerR);
-
-        var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
-        var arc = regionPie.selectAll(".arc")
-            .data(Piedata)
-            .enter()
-            .append("g")
-            .attr('class', 'arc');
-
-        arc.append("path")
-            .attr("d", path)
-            .attr("fill", function (d,i) {
-                return color(i)
-            });
-
-        arc.append("text")
-            .attr("transform", function (d) {
-                return "translate("+path.centroid(d)+")"
+            var Piedata = d3.pie().value(function (d) {
+                return d.value;
             })
-            .attr('dy', '0.35em')
-            .text(function (d) {
-                console.log(d.data[0]);
-                return d.data[0];
-            })
-            .attr("fill", 'black');
+                .sortValues(null)(regiondata);
+
+            var path = d3.arc()
+                .innerRadius(innerR)
+                .outerRadius(outerR);
+
+            var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+            var arc = regionPie.selectAll(".arc")
+                .data(Piedata)
+                .enter()
+                .append("g")
+                .attr('class', 'arc');
+
+            arc.append("path")
+                .attr("d", path)
+                .attr("fill", function (d,i) {
+                    return color(i)
+                });
+
+            arc.append("text")
+                .attr("transform", function (d) {
+                    return "translate("+path.centroid(d)+")"
+                })
+                .attr('dy', '0.35em')
+                .text(function (d) {
+                    console.log(d.data.region);
+                    return "第"+d.data.region+"象限"+":"+d.data.value;
+                })
+                .attr("fill", 'black');
+        }
+
+      $.getJSON('{% url 'tempsensor:regionfrequency' %}', function (regiondata) {
+          console.log(regiondata);
+          regionPiePlot(regionPie, regiondata);
+      });
+
+
 
     </script>
 {% endblock custom_js %}
