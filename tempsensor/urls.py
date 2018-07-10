@@ -16,5 +16,7 @@ urlpatterns = [
     url(r'^tempcenter/(?P<duration>[0-9]+)/$', views.TempCenterList.as_view(), name='tempcenterlist'),
     url(r'^highcharts/(?P<id>[0-9]+)/$', views.highcharats_get_kksid),
     url(r'basicoverview/$', TemplateView.as_view(template_name='basicoverview.html'), name='basicoverview'),
-    url(r'regionfrequency/$', views.regionFrequency, name='regionfrequency')
+    url(r'regionfrequency/$', views.regionFrequency, name='regionfrequency'),
+    url(r'anglefrequency/$', views.angleFrequency, name='anglefrequency'),
+    url(r'distancefrequency/$', views.distanceFrequency, name='distancefrequency'),
 ]

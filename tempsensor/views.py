@@ -207,14 +207,15 @@ def highcharats_get_kksid(request, id):
     return render(request, 'highcharts.html', {'id': id, 'sensor': sensor, 'iid': int(id)})
 
 
-# 获得温度最高值
-def TempValueMax(request):
+# 获得烟温平均温度分布
+def TempValueAverage(request):
     pass
 
 
-# 获得假象烟温中心所在象限出现频数
+# 获得假想烟温中心所在象限出现频数
 def regionFrequency(request):
     tc = TempCenter.objects.values()
+    totle = tc.count()
     tcf = df(list(tc))
     res = tcf.groupby('region').size()
 
@@ -224,6 +225,21 @@ def regionFrequency(request):
         temp = {}
         temp['region'] = k
         temp['value'] = int(v)
+        temp['totle'] = totle
         json.append(temp)
 
     return JsonResponse(json, safe=False)
+
+
+# 获得假想烟温中心偏转角度概率分布
+def angleFrequency(request):
+    angle = TempCenter.objects.values('angle')
+    anglelist = list(angle)
+    return JsonResponse(anglelist, safe=False)
+
+
+# 获得假想烟温中心偏移距离概率分布
+def distanceFrequency(request):
+    distance = TempCenter.objects.values('distance')
+    distancelist = list(distance)
+    return JsonResponse(distancelist, safe=False)

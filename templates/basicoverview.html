@@ -6,10 +6,23 @@
 {% endblock title %}
 
 {% block main_svg %}
-    <div  class="container container-fluid">
-        <div class="row justify-content-center">
-            <svg id="regionPie" width=800 height=800 style="border: 1px solid silver;display: block;margin-top: 80px"></svg>
+    <div  class="container">
+        <div class="row">
+            <div class="col-md-5 col-xs-12 col-sm-12">
+                <svg id="regionPie" width=455 height=400 style="border: 1px solid silver;display: block;margin-top: 80px;float: left"></svg>
+            </div>
+            <div class="col-md-7 col-xs-12 col-sm-12">
+                <svg id="angle" width=665 height=400 style="border: 1px solid silver;display: block;margin-top: 80px"></svg>
+            </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <svg id="distance" width=1140 height=400 style="border: 1px solid silver;display: block;margin-top: 20px"></svg>
+            </div>
+
+        </div>
+
     </div>
 {% endblock main_svg %}
 
@@ -20,57 +33,21 @@
 
     <script>
         var regionPie = d3.select('#regionPie');
-
-        function regionPiePlot(regionPie, regiondata) {
-            var height = regionPie.attr('height');
-            var width = regionPie.attr('width');
-
-            regionPie = regionPie.append("g")
-                .attr('transform', 'translate('+width/2+","+height/2+")");
-
-            var outerR = width/3;
-            var innerR = width/5;
-
-            var Piedata = d3.pie().value(function (d) {
-                return d.value;
-            })
-                .sortValues(null)(regiondata);
-
-            var path = d3.arc()
-                .innerRadius(innerR)
-                .outerRadius(outerR);
-
-            var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
-            var arc = regionPie.selectAll(".arc")
-                .data(Piedata)
-                .enter()
-                .append("g")
-                .attr('class', 'arc');
-
-            arc.append("path")
-                .attr("d", path)
-                .attr("fill", function (d,i) {
-                    return color(i)
-                });
-
-            arc.append("text")
-                .attr("transform", function (d) {
-                    return "translate("+path.centroid(d)+")"
-                })
-                .attr('dy', '0.35em')
-                .text(function (d) {
-                    console.log(d.data.region);
-                    return "第"+d.data.region+"象限"+":"+d.data.value;
-                })
-                .attr("fill", 'black');
-        }
+        var angleFrequencySvg = d3.select('#angle');
+        var distanceFrequencySvg = d3.select('#distance');
 
       $.getJSON('{% url 'tempsensor:regionfrequency' %}', function (regiondata) {
           console.log(regiondata);
           regionPiePlot(regionPie, regiondata);
       });
 
+      $.getJSON('{% url 'tempsensor:distancefrequency' %}', function (data) {
+         histogramPlot(distanceFrequencySvg, data)
+      });
+
+      $.getJSON('{% url 'tempsensor:anglefrequency' %}', function (data) {
+         angleHistogramPlot(angleFrequencySvg, data)
+      });
 
 
     </script>

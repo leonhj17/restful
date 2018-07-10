@@ -294,6 +294,10 @@ function trackPlot(svg, data) {
     svg.selectAll("point")
           .data(data)
           .enter()
+          .append('a')
+          .attr('xlink:href', function (d, i) {
+              return '/basicoverview/'
+          })
           .append("circle")
           .attr("class", "point")
           .attr('id', function (d, i) {
@@ -502,3 +506,231 @@ function trackLegendPlot(svg, data) {
 
 }
 
+
+// 扇形图，各区比例
+function regionPiePlot(regionPie, regiondata) {
+    var height = regionPie.attr('height');
+    var width = regionPie.attr('width');
+
+    regionPie = regionPie.append("g")
+        .attr('transform', 'translate('+width/2+","+height/2+")");
+
+    var outerR = width/2.5;
+    var innerR = width/4;
+
+    var Piedata = d3.pie().value(function (d) {
+        return d.value;
+    })
+        .sortValues(null)(regiondata);
+
+    var path = d3.arc()
+        .innerRadius(innerR)
+        .outerRadius(outerR);
+
+    var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+    var arc = regionPie.selectAll(".arc")
+        .data(Piedata)
+        .enter()
+        .append("g")
+        .attr('class', 'arc');
+
+    arc.append("path")
+        .attr("d", path)
+        .attr("fill", function (d,i) {
+            return color(i)
+        });
+
+    arc.append("text")
+        .attr("transform", function (d) {
+            return "translate("+path.centroid(d)+")"
+        })
+        .attr('dy', '0.35em')
+        .text(function (d) {
+            // console.log(d.data.region);
+            // return "Region"+d.data.region+":"+((d.data.value/d.data.totle)*100).toFixed(2)+"%";
+            return ((d.data.value/d.data.totle)*100).toFixed(1)+"%";
+        })
+        .attr("fill", 'black');
+}
+
+
+//偏移距离概率密度分布图
+function histogramPlot(svg, data) {
+    var height = svg.attr('height');
+    var width = svg.attr('width');
+    var padding = {'right': 30, 'left':30, 'buttom':45, 'top':5};
+
+    var datalist = new Array
+    data.forEach(function (value) { datalist.push(value.distance) });
+
+    var max = Math.max.apply(null, datalist);
+    var min = Math.min.apply(null, datalist);
+
+    var xscale = d3.scaleLinear()
+        .domain([min, max])
+        .range([padding.left, width-padding.right]);
+
+    var hist = d3.histogram()
+        .domain(xscale.domain())
+        .thresholds(xscale.ticks(60));
+
+    var bins = hist(datalist);
+
+    console.log('距离');
+    console.log(bins);
+
+    var bar_width = (width-padding.right-padding.left)/bins.length;
+
+    var frequency = new Array
+
+    bins.forEach(function (value) {
+        frequency.push(value.length);
+    });
+
+    var frequencyMax = Math.max.apply(null, frequency);
+
+    var yscale = d3.scaleLinear()
+        .domain([0, frequencyMax])
+        .range([height-padding.buttom, padding.top]);
+
+    svg.selectAll("rect")
+        .data(bins)
+        .enter()
+        .append("rect")
+        .attr("x", function (d, i) {
+            return padding.left+i*bar_width
+        })
+        .attr("y", function (d) {
+            return yscale(d.length)
+        })
+        .attr("width", bar_width-1)
+        .attr("height", function (d) {
+            return yscale(0)-yscale(d.length)
+        })
+        .attr("fill", "#603360")
+        .attr("opacity", 0.5);
+
+    var xaxis = d3.axisBottom(xscale)
+      .tickValues(xscale.ticks(bins.length/3));
+    var yaxis = d3.axisLeft(yscale)
+      .tickValues(yscale.ticks(10));
+      svg.append('g')
+          .attr('class','xaxis')
+          .call(xaxis)
+          .attr("transform", "translate(" +0+ "," +(height-padding.buttom)+ ")");
+      svg.append('g')
+          .attr('class', 'yaxis')
+          .call(yaxis)
+          .attr("transform", "translate(" +padding.left+ "," +0+ ")");
+
+     var lineGenerator = d3.line()
+        .x(function (d) {
+            return xscale(d.x0)
+        })
+        .y(function (d) {
+            return yscale(d.length)
+        })
+        .curve(d3.curveBasis);
+
+      svg.append("path")
+        .attr("class", 'linePath')
+        .attr("d", lineGenerator(bins))
+        .attr("opacity", 1)
+        .attr("fill", "none")
+        .attr("stroke", "#492349")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5);
+};
+
+
+//偏转角度概率密度分布图
+function angleHistogramPlot(svg, data) {
+    var height = svg.attr('height');
+    var width = svg.attr('width');
+    var padding = {'right': 20, 'left':20, 'buttom':35, 'top':5};
+
+    var datalist = new Array
+    data.forEach(function (value) { datalist.push(value.angle) });
+
+    var max = Math.max.apply(null, datalist);
+    var min = Math.min.apply(null, datalist);
+
+    var xscale = d3.scaleLinear()
+        .domain([0, 360])
+        .range([padding.left, width-padding.right]);
+
+    var hist = d3.histogram()
+        .domain(xscale.domain())
+        .thresholds(xscale.ticks(60));
+
+    var bins = hist(datalist);
+
+    console.log('角度');
+    console.log(bins);
+
+    var bar_width = (width-padding.right-padding.left)/bins.length;
+
+    var frequency = new Array
+
+    bins.forEach(function (value) {
+        frequency.push(value.length);
+    });
+
+    var frequencyMax = Math.max.apply(null, frequency);
+    var frequencyMin = Math.min.apply(null, frequency);
+
+    var yscale = d3.scaleLinear()
+        .domain([frequencyMin, frequencyMax])
+        .range([height-padding.buttom, padding.top]);
+
+    svg.selectAll("rect")
+        .data(bins)
+        .enter()
+        .append("rect")
+        .attr("x", function (d, i) {
+            return padding.left+i*bar_width
+        })
+        .attr("y", function (d) {
+            return yscale(d.length)
+        })
+        .attr("width", bar_width-1)
+        .attr("height", function (d) {
+            return yscale(0)-yscale(d.length)
+        })
+        .attr("fill", "#98abc5")
+        .attr("opacity", 0.5);
+
+    var xaxis = d3.axisBottom(xscale)
+      .tickValues(xscale.ticks(bins.length/4));
+    var yaxis = d3.axisLeft(yscale)
+      .tickValues(yscale.ticks(10));
+      svg.append('g')
+          .attr('class','xaxis')
+          .call(xaxis)
+          .attr("transform", "translate(" +0+ "," +(height-padding.buttom)+ ")");
+      svg.append('g')
+          .attr('class', 'yaxis')
+          .call(yaxis)
+          .attr("transform", "translate(" +padding.left+ "," +0+ ")");
+
+    var lineGenerator = d3.line()
+        .x(function (d) {
+            return xscale(d.x0)
+        })
+        .y(function (d) {
+            return yscale(d.length)
+        })
+        .curve(d3.curveBasis);
+
+    svg.append("path")
+        .attr("class", 'linePath')
+        .attr("d", lineGenerator(bins))
+        .attr("opacity", 1)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5);
+}
