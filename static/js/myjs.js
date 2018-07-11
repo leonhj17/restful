@@ -512,10 +512,10 @@ function regionPiePlot(regionPie, regiondata) {
     var height = regionPie.attr('height');
     var width = regionPie.attr('width');
 
-    regionPie = regionPie.append("g")
+    var g = regionPie.append("g")
         .attr('transform', 'translate('+width/2+","+height/2+")");
 
-    var outerR = width/2.5;
+    var outerR = height/2.5;
     var innerR = width/4;
 
     var Piedata = d3.pie().value(function (d) {
@@ -529,7 +529,7 @@ function regionPiePlot(regionPie, regiondata) {
 
     var color = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
-    var arc = regionPie.selectAll(".arc")
+    var arc = g.selectAll(".arc")
         .data(Piedata)
         .enter()
         .append("g")
@@ -552,6 +552,35 @@ function regionPiePlot(regionPie, regiondata) {
             return ((d.data.value/d.data.totle)*100).toFixed(1)+"%";
         })
         .attr("fill", 'black');
+
+    var glegend = regionPie.append('g')
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 10)
+        .attr("text-anchor", 'right')
+        .selectAll("g")
+        .data(regiondata)
+        .enter()
+        .append("g")
+        .attr("transform", function (d, i) {
+            return "translate("+((i+1)*(width/6))+","+0+")"
+        });
+
+    glegend.append("rect")
+        .attr("x", 0)
+        .attr("width", 19)
+        .attr("height", 19)
+        .attr("fill", function (d, i) {
+            return color(i)
+        });
+
+    glegend.append("text")
+        .attr("x", 24)
+        .attr("y", 9.5)
+        .attr("dy", "0.32em")
+        .text(function (d) {
+            return "Region:"+d.region
+        })
+
 }
 
 
